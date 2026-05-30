@@ -776,4 +776,36 @@ canvas{display:block;width:100%;height:100%}
 #ac-tooltip .tt-badge.orange{background:#320;color:#fa0;border:1px solid #540}
 #ac-tooltip .tt-badge.blue{background:#012;color:#48c;border:1px solid #248}
 #ac-tooltip .tt-badge.red{background:#300;color:#f44;border:1px solid #600}
+/* ── MOBILE (≤768px) ── */
+@media (max-width:768px){
+  body{flex-direction:column}
+  #map-panel{flex:none;height:45vh;width:100%;border-right:none;border-bottom:1px solid var(--border)}
+  #map-header{font-size:10px;padding:4px 12px;top:6px}
+  #legend{display:none!important}
+  #sidebar{width:100%;height:55vh;border-left:none}
+  #sidebar-header{padding:8px 10px;font-size:10px;gap:4px;flex-wrap:wrap}
+  #sidebar-header span{font-size:9px}
+  #info-btn{font-size:13px!important;margin-right:4px!important}
+  #auto-toggle,#flights-toggle{font-size:8px;gap:3px}
+  #auto-toggle .knob,#flights-toggle .knob{width:20px;height:10px}
+  #auto-toggle .knob::after,#flights-toggle .knob::after{width:8px;height:8px;top:0.5px;left:0.5px}
+  #auto-toggle.on .knob::after,#flights-toggle.on .knob::after{left:11px}
+  #feed{flex:1;font-size:11px}
+  .tx-line{padding:4px 10px;font-size:10px}
+  .tx-line .ts{font-size:8px;margin-right:4px}
+  .tx-line .loc-tag{font-size:7px;padding:0 3px}
+  .btn-play{font-size:8px;padding:0 3px}
+  #counter-bar{padding:4px 8px;font-size:7px;gap:8px;flex-wrap:wrap}
+  #counter-bar select{font-size:7px}
+  #status-bar{padding:4px 10px;font-size:8px}
+  #flights-panel{font-size:10px}
+  .flight-line{padding:3px 8px;font-size:10px}
+  .flight-line .fl-num{font-size:10px;min-width:42px}
+  .flight-line .fl-route{font-size:10px}
+  .flight-line .fl-info{font-size:9px}
+  .flight-line .fl-meta{font-size:9px;min-width:70px}
+  #info-tooltip{top:auto!important;bottom:50px;right:4px;left:4px;max-width:96vw!important;font-size:10px}
+  #info-tooltip>div:first-child{font-size:12px!important}
+  #last-timer{font-size:9px}
+}
 `
