@@ -180,12 +180,21 @@ export default function Dashboard() {
       terminal: { stroke: '#ff0', fill: 'rgba(255,255,0,0.2)', width: 3 },
     }
 
+    function getScale() {
+      // Reduce map element sizes on small screens
+      const W = canvas.parentElement!.clientWidth
+      if (W <= 500) return 0.45
+      if (W <= 768) return 0.6
+      return 1.0
+    }
+
     function drawFeature(f: any, idx: number) {
       const type = f.properties.type, isHL = highlightedFeatures.has(idx)
       const hl = isHL ? (HL_COLORS[type] || {}) : {}
       const style = STYLES[type] || { color: '#555', width: 1 }
       const sc = hl.stroke || style.color, fc = hl.fill || style.fill || null
-      const lw = Math.max(0.5, (hl.width || style.width || 1) * Math.min(zoom, 4))
+      const s = getScale()
+      const lw = Math.max(0.3, (hl.width || style.width || 1) * Math.min(zoom, 4) * s)
       ctx.strokeStyle = sc; ctx.lineWidth = lw
       ctx.setLineDash(style.dash || [])
 
@@ -200,7 +209,7 @@ export default function Dashboard() {
         ctx.stroke()
       } else if (f.geometry.type === 'Point') {
         const [x, y] = toScreen(f.geometry.coordinates[0], f.geometry.coordinates[1])
-        const r = Math.max(1.5, (isHL ? 8 : 5) * Math.min(zoom, 3))
+        const r = Math.max(1.0, (isHL ? 8 : 5) * Math.min(zoom, 3) * s)
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2)
         if (fc) { ctx.fillStyle = fc; ctx.fill() }
         ctx.stroke()
@@ -217,7 +226,8 @@ export default function Dashboard() {
 
     function drawLabels() {
       if (!airportData || zoom < 0.8) return
-      const fs = Math.max(8, Math.min(16, 10 * Math.min(zoom, 2.5)))
+      const s = getScale()
+      const fs = Math.max(6, Math.min(14, 10 * Math.min(zoom, 2.5) * s))
       const labeled = new Set(['runway', 'tower'])
       for (const f of airportData.features) {
         const t = f.properties.type, l = f.properties.label
