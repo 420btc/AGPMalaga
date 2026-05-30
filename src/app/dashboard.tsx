@@ -603,6 +603,15 @@ export default function Dashboard() {
     }
 
     // ─── INIT ───
+    // Click-outside to close info tooltip
+    document.addEventListener('click', (e) => {
+      const tooltip = document.getElementById('info-tooltip')
+      const btn = document.getElementById('info-btn')
+      if (tooltip && btn && tooltip.style.display === 'block' && !btn.contains(e.target as Node) && !tooltip.contains(e.target as Node)) {
+        tooltip.style.display = 'none'
+      }
+    })
+
     loadAirport().then(() => {
       pollTranscriptions()
       pollAircraft()
@@ -642,9 +651,26 @@ export default function Dashboard() {
       <div id="sidebar">
         <div id="sidebar-header">
           <span>TRANSCRIPCIONES | @torreagpbot</span>
+          <span id="info-btn" title="Acerca de" style={{cursor:'pointer',fontSize:'15px',marginRight:'8px',opacity:0.6}} onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>ℹ️</span>
           <label id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" /><span className="knob"></span> AUTO</label>
           <label id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" /><span className="knob"></span> ✈</label>
           <span id="last-timer"></span>
+        </div>
+        <div id="info-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'14px 18px',borderRadius:'6px',fontSize:'11px',lineHeight:1.6,zIndex:200,maxWidth:'300px',color:'#aaa'}}>
+          <div style={{fontSize:'13px',color:'#fff',marginBottom:'8px',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
+          <div style={{marginBottom:'6px'}}>Creado por <a href="https://carlosfr.es" target="_blank" style={{color:'#4af'}}>Carlos Freire</a> · <a href="https://carlosfr.es" target="_blank" style={{color:'#888'}}>carlosfr.es</a></div>
+          <div style={{borderTop:'1px solid #333',margin:'8px 0',paddingTop:'8px'}}>
+            <div>🎙 <b style={{color:'#ccc'}}>Audio real</b> — capturado con SDR desde Málaga</div>
+            <div>🧠 <b style={{color:'#ccc'}}>Transcripción IA</b> — faster-whisper small (GPU RTX 3070)</div>
+            <div>🔄 <b style={{color:'#ccc'}}>Sincronización</b> — cada ~30 segundos</div>
+            <div>⏱ <b style={{color:'#ccc'}}>Latencia</b> — ~5-15s desde emisión hasta web</div>
+            <div>📡 <b style={{color:'#ccc'}}>Cobertura</b> — Torre Málaga (LEMG/AGP) 118.150 MHz</div>
+          </div>
+          <div style={{borderTop:'1px solid #333',margin:'8px 0 0',paddingTop:'8px',fontSize:'10px',color:'#666'}}>
+            No es IA generativa — son comunicaciones reales ATC.<br/>
+            Las transcripciones pueden contener errores.<br/>
+            Bot Telegram: <a href="https://t.me/torreagpbot" target="_blank" style={{color:'#4af'}}>@torreagpbot</a>
+          </div>
         </div>
         <div id="flights-panel" style={{ display: 'none', flex: 1, overflowY: 'auto', padding: '8px 0', borderBottom: '1px solid var(--border)' }}></div>
         <div id="feed"><div className="tx-line" style={{ color: 'var(--dim)' }}>Cargando...</div></div>
