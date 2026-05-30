@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 // NeonDB connection via environment variables
 // Set NEON_DATABASE_URL in Vercel env vars after creating the Neon project
 const pool = new Pool({
-  connectionString: process.env.NEON_DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL || process.env.POSTGRES_URL,
   ssl: { rejectUnauthorized: false },
   max: 5,
   idleTimeoutMillis: 30000,
