@@ -16,11 +16,12 @@ export async function POST(request: Request) {
     }
 
     const blob = await put(file.name, file, {
-      access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN,
     })
 
-    return Response.json({ url: blob.url })
+    // Return proxied URL so it works even if store is private
+    const proxyUrl = `/api/audio-stream?url=${encodeURIComponent(blob.url)}`
+    return Response.json({ url: proxyUrl })
   } catch (e: any) {
     return Response.json({ error: e.message }, { status: 500 })
   }
