@@ -2,8 +2,9 @@
 import { put } from '@vercel/blob'
 
 export async function POST(request: Request) {
-  const auth = request.headers.get('Authorization')
-  if (auth !== `Bearer ${process.env.AUTH_SECRET}`) {
+  const token = request.headers.get('X-Auth-Token') || request.headers.get('Authorization')?.replace('Bearer ', '') || ''
+  const secret = (process.env.AUTH_SECRET || '').trim()
+  if (!secret || token !== secret) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
