@@ -476,14 +476,10 @@ export default function Dashboard() {
             }
           }
           if (data.highlighted && data.highlighted.length > 0) updateHighlight(data.highlighted)
-          // Client-side highlight from location tags (server doesn't have GeoJSON)
-          else if (data.entries) {
-            const allFids: number[] = []
-            for (const entry of data.entries) {
-              const fids = findFeatures(entry)
-              for (const id of fids) { if (!allFids.includes(id)) allFids.push(id) }
-            }
-            if (allFids.length > 0) updateHighlight(allFids)
+          // Client-side highlight from location tags — only for the NEWEST entry
+          else if (isReallyNew && lastEntry && lastEntry.locations && lastEntry.locations.length > 0) {
+            const fids = findFeatures(lastEntry)
+            if (fids.length > 0) updateHighlight(fids)
           }
         }
         updateTimer()
