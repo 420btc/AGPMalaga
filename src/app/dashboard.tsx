@@ -12,6 +12,21 @@ export default function Dashboard() {
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
 
+    // ─── MOBILE AUDIO UNLOCK ───
+    // Browsers block audio.play() without user gesture on mobile.
+    // Unlock on first touch/click with a silent momentary audio.
+    let audioUnlocked = false
+    const unlockAudio = () => {
+      if (audioUnlocked) return
+      const a = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=')
+      a.volume = 0.01
+      a.play().then(() => { audioUnlocked = true; a.pause(); a.remove() }).catch(() => {})
+      document.removeEventListener('touchstart', unlockAudio)
+      document.removeEventListener('click', unlockAudio)
+    }
+    document.addEventListener('touchstart', unlockAudio, { once: true })
+    document.addEventListener('click', unlockAudio, { once: true })
+
     // ─── STATE ───
     let airportData: any = null
     let highlightedFeatures = new Set<number>()
@@ -467,7 +482,18 @@ export default function Dashboard() {
           const newText = lastEntry ? lastEntry.text : ''
           const isReallyNew = newText !== lastText
           lastText = newText
-          if (isReallyNew) beep()
+          if (isReallyNew) {
+            beep()
+            // Auto-play new audio entries
+            if (autoPlay && data.entries.length > 0) {
+              for (const entry of data.entries) {
+                if (entry.audio && !autoPlayed.has(entry.audio)) {
+                  autoPlayed.add(entry.audio)
+                  ;(window as any).playAudio(null, entry.audio)
+                }
+              }
+            }
+          }
           if (data.entries.length > 0) {
             const last = data.entries[data.entries.length - 1]
             if (last.full_ts) {
