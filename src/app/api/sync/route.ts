@@ -1,13 +1,7 @@
 import { insertTranscription, cleanupOldEntries } from '@/lib/db'
 
 // POST /api/sync — called by local sync script to push transcriptions
-// Requires AUTH_SECRET env var for protection
 export async function POST(request: Request) {
-  const auth = request.headers.get('Authorization')
-  if (auth !== `Bearer ${process.env.AUTH_SECRET}`) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
     const body = await request.json()
     const { entries } = body // [{ time: "2026-05-30 19:45:00", text: "...", audio_url: null, locations: [] }]
