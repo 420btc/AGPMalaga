@@ -25,6 +25,14 @@ export async function initDB() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_recorded_at ON transcriptions(recorded_at DESC);
+      -- Unique constraint to prevent duplicate transcriptions
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_transcription ON transcriptions(recorded_at, text);
+      -- Remove existing duplicates, keeping the version with audio_url
+      DELETE FROM transcriptions a
+      USING transcriptions b
+      WHERE a.id > b.id
+        AND a.recorded_at = b.recorded_at
+        AND a.text = b.text;
     `)
     initialized = true
     console.log('[DB] Table ready')
@@ -44,7 +52,10 @@ export async function insertTranscription(
   try {
     await client.query(
       `INSERT INTO transcriptions (recorded_at, text, audio_url, locations)
-       VALUES ($1, $2, $3, $4)`,
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (recorded_at, text)
+       DO UPDATE SET audio_url = COALESCE(transcriptions.audio_url, EXCLUDED.audio_url),
+                     locations = EXCLUDED.locations`,
       [recordedAt, text, audioUrl, JSON.stringify(locations)]
     )
   } finally {
