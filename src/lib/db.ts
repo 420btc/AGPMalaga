@@ -1,4 +1,5 @@
 import { Pool } from 'pg'
+import { del } from '@vercel/blob'
 
 // NeonDB connection via environment variables
 // Set NEON_DATABASE_URL in Vercel env vars after creating the Neon project
@@ -87,7 +88,7 @@ export async function getTranscriptions(limit = 30) {
   }
 }
 
-// Cleanup: delete entries older than 24 hours
+// Cleanup: delete entries older than 24 hours + purge audio blobs
 export async function cleanupOldEntries() {
   await initDB()
   const client = await pool.connect()
@@ -96,12 +97,22 @@ export async function cleanupOldEntries() {
       `DELETE FROM transcriptions WHERE recorded_at < NOW() - INTERVAL '1 day'
        RETURNING id, audio_url`
     )
-    // Also clean up blob storage for deleted entries
-    const deletedAudio = result.rows.filter((r: any) => r.audio_url).map((r: any) => r.audio_url)
-    if (deletedAudio.length > 0) {
-      console.log(`[Cleanup] Deleted ${result.rows.length} entries, ${deletedAudio.length} audio files to purge`)
+    // Purge audio blobs from Vercel Blob storage
+    const deletedAudio: string[] = []
+    for (const row of result.rows) {
+      if (row.audio_url) {
+        try {
+          await del(row.audio_url)
+          deletedAudio.push(row.audio_url)
+        } catch (e: any) {
+          console.warn(`[Cleanup] Failed to delete blob ${row.audio_url}: ${e.message}`)
+        }
+      }
     }
-    return { deleted: result.rows.length, audio_urls: deletedAudio }
+    // Vacuum to reclaim disk space in NeonDB (0.5 GB limit)
+    try { await client.query('VACUUM transcriptions') } catch (e: any) { console.warn('[Cleanup] Vacuum failed:', e.message) }
+    console.log(`[Cleanup] Deleted ${result.rows.length} DB entries + ${deletedAudio.length} audio blobs`)
+    return { deleted: result.rows.length, audio_purged: deletedAudio.length }
   } finally {
     client.release()
   }
