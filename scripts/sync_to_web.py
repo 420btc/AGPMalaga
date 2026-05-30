@@ -77,7 +77,7 @@ try:
     data = json.dumps({"entries": entries}).encode()
     req = urllib.request.Request(SYNC_URL, data=data, headers={
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {AUTH_SECRET}",
+        "X-Auth-Token": AUTH_SECRET,
     }, method="POST")
     resp = urllib.request.urlopen(req, timeout=30)
     result = json.loads(resp.read())
