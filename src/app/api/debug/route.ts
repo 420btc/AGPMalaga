@@ -1,10 +1,10 @@
-// GET /api/debug — check env vars
+// GET /api/debug — check all env vars
 export async function GET() {
-  return Response.json({
-    has_db: !!process.env.NEON_DATABASE_URL,
-    has_adsbx: !!process.env.ADSBX_API_KEY,
-    has_airlabs: !!process.env.AIRLABS_API_KEY,
-    has_auth: !!process.env.AUTH_SECRET,
-    auth_len: (process.env.AUTH_SECRET || '').length,
-  })
+  const vars: Record<string, boolean> = {}
+  for (const k of ['NEON_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL',
+                    'ADSBX_API_KEY', 'AIRLABS_API_KEY', 'AUTH_SECRET',
+                    'BLOB_READ_WRITE_TOKEN', 'CRON_SECRET']) {
+    vars[k] = !!process.env[k]
+  }
+  return Response.json(vars)
 }
