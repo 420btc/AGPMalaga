@@ -731,6 +731,11 @@ export default function Dashboard() {
       if (tooltip && btn && tooltip.style.display === 'block' && !btn.contains(e.target as Node) && !tooltip.contains(e.target as Node)) {
         tooltip.style.display = 'none'
       }
+      const helpTt = document.getElementById('help-tooltip')
+      const helpBtn = document.getElementById('help-btn')
+      if (helpTt && helpBtn && helpTt.style.display === 'block' && !helpBtn.contains(e.target as Node) && !helpTt.contains(e.target as Node)) {
+        helpTt.style.display = 'none'
+      }
     })
 
     loadAirport().then(() => {
@@ -774,8 +779,14 @@ export default function Dashboard() {
           <span>TRANSCRIPCIONES | 118.150 MHz</span>
           <span id="info-btn" title="Acerca de" style={{cursor:'pointer',fontSize:'15px',marginRight:'8px',opacity:0.6}} onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>ℹ️</span>
           <label id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" /><span className="knob"></span> AUTO</label>
+          <span id="help-btn" title="Ayuda" style={{cursor:'pointer',fontSize:'12px',marginLeft:'-2px',opacity:0.5,color:'#aaa'}} onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>?</span>
           <label id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" /><span className="knob"></span> ✈</label>
           <span id="last-timer"></span>
+        </div>
+        <div id="help-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'10px 14px',borderRadius:'6px',fontSize:'10px',lineHeight:1.6,zIndex:200,maxWidth:'240px',color:'#aaa'}}>
+          <div style={{fontSize:'12px',color:'#fff',marginBottom:'6px',fontWeight:'bold'}}>❓ Ayuda</div>
+          <div style={{marginBottom:'4px'}}><b style={{color:'#0f0'}}>AUTO</b> — Reproduce automáticamente el audio de cada transcripción nueva que llega. Sin AUTO, tienes que pulsar ▶ en cada una.</div>
+          <div style={{borderTop:'1px solid #333',margin:'6px 0',paddingTop:'6px'}}><b style={{color:'#4af'}}>✈ Vuelos</b> — Muestra el panel de llegadas y salidas del aeropuerto de Málaga (AGP). Se actualiza cada 30s.</div>
         </div>
         <div id="info-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'14px 18px',borderRadius:'6px',fontSize:'11px',lineHeight:1.6,zIndex:200,maxWidth:'300px',color:'#aaa'}}>
           <div style={{fontSize:'13px',color:'#fff',marginBottom:'8px',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
@@ -928,6 +939,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .flight-line .fl-meta{font-size:8px;min-width:60px}
   #info-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:98vw!important;font-size:9px}
   #info-tooltip>div:first-child{font-size:11px!important}
+  #help-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:92vw!important;font-size:9px}
+  #help-btn{font-size:14px!important;margin:0 2px!important}
   #last-timer{font-size:8px}
 }
 `
