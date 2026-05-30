@@ -25,14 +25,14 @@ export async function initDB() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_recorded_at ON transcriptions(recorded_at DESC);
-      -- Unique constraint to prevent duplicate transcriptions
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_transcription ON transcriptions(recorded_at, text);
       -- Remove existing duplicates, keeping the version with audio_url
       DELETE FROM transcriptions a
       USING transcriptions b
       WHERE a.id > b.id
         AND a.recorded_at = b.recorded_at
         AND a.text = b.text;
+      -- Unique constraint to prevent future duplicate transcriptions
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_transcription ON transcriptions(recorded_at, text);
     `)
     initialized = true
     console.log('[DB] Table ready')
