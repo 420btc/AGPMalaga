@@ -650,7 +650,7 @@ export default function Dashboard() {
       </div>
       <div id="sidebar">
         <div id="sidebar-header">
-          <span>TRANSCRIPCIONES | @torreagpbot</span>
+          <span>TRANSCRIPCIONES | 118.150 MHz</span>
           <span id="info-btn" title="Acerca de" style={{cursor:'pointer',fontSize:'15px',marginRight:'8px',opacity:0.6}} onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>ℹ️</span>
           <label id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" /><span className="knob"></span> AUTO</label>
           <label id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" /><span className="knob"></span> ✈</label>
@@ -662,14 +662,15 @@ export default function Dashboard() {
           <div style={{borderTop:'1px solid #333',margin:'8px 0',paddingTop:'8px'}}>
             <div>🎙 <b style={{color:'#ccc'}}>Audio real</b> — capturado con SDR desde Málaga</div>
             <div>🧠 <b style={{color:'#ccc'}}>Transcripción IA</b> — faster-whisper small (GPU RTX 3070)</div>
-            <div>🔄 <b style={{color:'#ccc'}}>Sincronización</b> — cada ~30 segundos</div>
+            <div>🔄 <b style={{color:'#ccc'}}>Sincronización</b> — cada ~15 segundos</div>
             <div>⏱ <b style={{color:'#ccc'}}>Latencia</b> — ~5-15s desde emisión hasta web</div>
             <div>📡 <b style={{color:'#ccc'}}>Cobertura</b> — Torre Málaga (LEMG/AGP) 118.150 MHz</div>
           </div>
           <div style={{borderTop:'1px solid #333',margin:'8px 0 0',paddingTop:'8px',fontSize:'10px',color:'#666'}}>
             No es IA generativa — son comunicaciones reales ATC.<br/>
             Las transcripciones pueden contener errores.<br/>
-            Bot Telegram: <a href="https://t.me/torreagpbot" target="_blank" style={{color:'#4af'}}>@torreagpbot</a>
+            ⚠️ Fines educativos y de entretenimiento. No usar<br/>
+            para toma de decisiones operativas.
           </div>
         </div>
         <div id="flights-panel" style={{ display: 'none', flex: 1, overflowY: 'auto', padding: '8px 0', borderBottom: '1px solid var(--border)' }}></div>
