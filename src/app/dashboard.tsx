@@ -17,7 +17,7 @@ export default function Dashboard() {
     let highlightedFeatures = new Set<number>()
     let highlightTimeout: any = null
     let bounds: any = null
-    let zoom = 1, panX = 0, panY = 0
+    let zoom = 1.5, panX = 0, panY = 0
     const MIN_ZOOM = 0.3, MAX_ZOOM = 12
     let isDragging = false, dragStartX = 0, dragStartY = 0, dragPanX = 0, dragPanY = 0
     let aircraft: any[] = [], acAge = 0
@@ -350,6 +350,25 @@ export default function Dashboard() {
       highlightTimeout = setTimeout(() => { highlightedFeatures = new Set(); hlPulse = 0; draw() }, 8000)
     }
 
+    // Match detected locations against airport GeoJSON features
+    function findFeatures(entry: any): number[] {
+      if (!airportData || !entry.locations || !entry.locations.length) return []
+      const fids: number[] = []
+      for (let i = 0; i < airportData.features.length; i++) {
+        const f = airportData.features[i]
+        const ftype = f.properties.type, ref = (f.properties.ref || '').toUpperCase().trim()
+        const label = (f.properties.label || '').toUpperCase().trim()
+        const name = (f.properties.name || '').toUpperCase().trim()
+        for (const loc of entry.locations) {
+          if (loc.type !== ftype) continue
+          const mref = loc.ref.toUpperCase().trim()
+          if (mref === ref || mref === label || mref === name) { fids.push(i); break }
+          if (ftype === 'taxiway' && ref && mref === ref) { fids.push(i); break }
+        }
+      }
+      return fids
+    }
+
     let animFrame: number
     function pulseAnim() {
       hlPulse = Math.max(0, hlPulse - 0.3)
@@ -401,6 +420,15 @@ export default function Dashboard() {
             }
           }
           if (data.highlighted && data.highlighted.length > 0) updateHighlight(data.highlighted)
+          // Client-side highlight from location tags (server doesn't have GeoJSON)
+          else if (data.entries) {
+            const allFids: number[] = []
+            for (const entry of data.entries) {
+              const fids = findFeatures(entry)
+              for (const id of fids) { if (!allFids.includes(id)) allFids.push(id) }
+            }
+            if (allFids.length > 0) updateHighlight(allFids)
+          }
         }
         updateTimer()
         const now = new Date()
