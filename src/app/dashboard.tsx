@@ -380,7 +380,7 @@ export default function Dashboard() {
             let html = ''
             if (entry.time) html += `<span class="ts">${entry.time}</span>`
             html += entry.text
-            if (entry.audio) html += ` <button class="btn-play" onclick="(window as any).playAudio(this,'${entry.audio}')">▶</button>`
+            if (entry.audio) html += ` <button class="btn-play" onclick="window.playAudio(this,'${entry.audio}')">▶</button>`
             if (entry.locations && entry.locations.length > 0) {
               html += ' '
               for (const loc of entry.locations) html += `<span class="loc-tag ${loc.type}">${loc.type}:${loc.ref}</span>`
@@ -421,15 +421,30 @@ export default function Dashboard() {
       else el.textContent = 'hace ' + Math.floor(elapsed / 60) + 'm'
     }
 
+    let audioCtx: AudioContext | null = null
+    function getAudioCtx(): AudioContext | null {
+      if (audioCtx) return audioCtx
+      try {
+        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+        // If suspended (autoplay policy), resume on first user click
+        if (audioCtx.state === 'suspended') {
+          const resume = () => { audioCtx?.resume(); document.removeEventListener('click', resume) }
+          document.addEventListener('click', resume)
+        }
+        return audioCtx
+      } catch (e) { return null }
+    }
+
     function beep() {
       try {
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
-        const o = audioCtx.createOscillator(), g = audioCtx.createGain()
-        o.connect(g); g.connect(audioCtx.destination)
-        o.type = 'sine'; o.frequency.setValueAtTime(880, audioCtx.currentTime)
-        g.gain.setValueAtTime(0.04, audioCtx.currentTime)
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2)
-        o.start(audioCtx.currentTime); o.stop(audioCtx.currentTime + 2)
+        const ctx = getAudioCtx()
+        if (!ctx) return
+        const o = ctx.createOscillator(), g = ctx.createGain()
+        o.connect(g); g.connect(ctx.destination)
+        o.type = 'sine'; o.frequency.setValueAtTime(880, ctx.currentTime)
+        g.gain.setValueAtTime(0.04, ctx.currentTime)
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2)
+        o.start(ctx.currentTime); o.stop(ctx.currentTime + 2)
       } catch (e) { }
     }
 
