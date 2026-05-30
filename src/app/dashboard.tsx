@@ -366,7 +366,7 @@ export default function Dashboard() {
         const feed = document.getElementById('feed')!
         errorCount = 0
         const statusLeft = document.getElementById('status-left')!
-        statusLeft.innerHTML = '● EN LÍNEA'
+        statusLeft.innerHTML = '<span style=\"color:#0f0\">● EN LÍNEA</span>'
 
         if (data.entries.length !== lastCount || data.updated !== lastUpdated || data.error) {
           lastCount = data.entries.length; lastUpdated = data.updated
@@ -778,34 +778,35 @@ canvas{display:block;width:100%;height:100%}
 #ac-tooltip .tt-badge.red{background:#300;color:#f44;border:1px solid #600}
 /* ── MOBILE (≤768px) ── */
 @media (max-width:768px){
+  html,body{overflow-x:hidden;overflow-y:hidden}
   body{flex-direction:column}
-  #map-panel{flex:none;height:45vh;width:100%;border-right:none;border-bottom:1px solid var(--border)}
-  #map-header{font-size:10px;padding:4px 12px;top:6px}
+  #map-panel{flex:none;height:42vh;width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}
+  #map-header{font-size:9px;padding:3px 8px;top:4px;left:50%;white-space:nowrap}
   #legend{display:none!important}
-  #sidebar{width:100%;height:55vh;border-left:none}
-  #sidebar-header{padding:8px 10px;font-size:10px;gap:4px;flex-wrap:wrap}
-  #sidebar-header span{font-size:9px}
-  #info-btn{font-size:13px!important;margin-right:4px!important}
-  #auto-toggle,#flights-toggle{font-size:8px;gap:3px}
-  #auto-toggle .knob,#flights-toggle .knob{width:20px;height:10px}
-  #auto-toggle .knob::after,#flights-toggle .knob::after{width:8px;height:8px;top:0.5px;left:0.5px}
-  #auto-toggle.on .knob::after,#flights-toggle.on .knob::after{left:11px}
-  #feed{flex:1;font-size:11px}
-  .tx-line{padding:4px 10px;font-size:10px}
-  .tx-line .ts{font-size:8px;margin-right:4px}
-  .tx-line .loc-tag{font-size:7px;padding:0 3px}
-  .btn-play{font-size:8px;padding:0 3px}
-  #counter-bar{padding:4px 8px;font-size:7px;gap:8px;flex-wrap:wrap}
-  #counter-bar select{font-size:7px}
-  #status-bar{padding:4px 10px;font-size:8px}
-  #flights-panel{font-size:10px}
-  .flight-line{padding:3px 8px;font-size:10px}
-  .flight-line .fl-num{font-size:10px;min-width:42px}
-  .flight-line .fl-route{font-size:10px}
-  .flight-line .fl-info{font-size:9px}
-  .flight-line .fl-meta{font-size:9px;min-width:70px}
-  #info-tooltip{top:auto!important;bottom:50px;right:4px;left:4px;max-width:96vw!important;font-size:10px}
-  #info-tooltip>div:first-child{font-size:12px!important}
-  #last-timer{font-size:9px}
+  #sidebar{width:100%;height:58vh;border-left:none;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+  #sidebar-header{padding:6px 8px;font-size:9px;gap:3px;flex-wrap:wrap;flex-shrink:0}
+  #sidebar-header span{font-size:8px}
+  #info-btn{font-size:12px!important;margin-right:2px!important}
+  #auto-toggle,#flights-toggle{font-size:7px;gap:2px}
+  #auto-toggle .knob,#flights-toggle .knob{width:18px;height:9px}
+  #auto-toggle .knob::after,#flights-toggle .knob::after{width:7px;height:7px;top:0.5px;left:0.5px}
+  #auto-toggle.on .knob::after,#flights-toggle.on .knob::after{left:10px}
+  #feed{flex:1;overflow-y:auto;overflow-x:hidden;font-size:10px}
+  .tx-line{padding:3px 8px;font-size:9px}
+  .tx-line .ts{font-size:7px;margin-right:3px}
+  .tx-line .loc-tag{font-size:6px;padding:0 2px}
+  .btn-play{font-size:7px;padding:0 2px}
+  #counter-bar{padding:3px 6px;font-size:7px;gap:6px;flex-wrap:wrap;flex-shrink:0;overflow:hidden}
+  #counter-bar select{font-size:6px}
+  #status-bar{padding:3px 8px;font-size:7px;flex-shrink:0}
+  #flights-panel{font-size:9px;flex-shrink:0;max-height:30vh}
+  .flight-line{padding:2px 6px;font-size:9px}
+  .flight-line .fl-num{font-size:9px;min-width:38px}
+  .flight-line .fl-route{font-size:9px}
+  .flight-line .fl-info{font-size:8px}
+  .flight-line .fl-meta{font-size:8px;min-width:60px}
+  #info-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:98vw!important;font-size:9px}
+  #info-tooltip>div:first-child{font-size:11px!important}
+  #last-timer{font-size:8px}
 }
 `
