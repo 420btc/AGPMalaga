@@ -679,6 +679,21 @@ export default function Dashboard() {
         } else {
           if (bar) bar.style.background = '#0f0'; if (label) label.style.color = '#0f0'
         }
+        // Countdown to next poll
+        const cd = document.getElementById('cnt-countdown')
+        if (cd && c.last_poll && c.poll_interval) {
+          const elapsed = Date.now() / 1000 - c.last_poll
+          const remaining = Math.max(0, Math.round(c.poll_interval - elapsed))
+          cd.textContent = remaining + 's'
+          cd.style.color = remaining < 10 ? '#f44' : remaining < 30 ? '#fa0' : '#0f0'
+        }
+        // Budget info
+        const budgetEl = document.getElementById('cnt-budget')
+        if (budgetEl && !budgetEl.textContent) {
+          fetch('/api/interval/' + (c.poll_interval || 120)).then(r => r.json()).then((d: any) => {
+            if (budgetEl) budgetEl.textContent = d.calls_per_hour + '/h ' + d.calls_per_day + '/d'
+          })
+        }
       })
     }
 
