@@ -17,9 +17,11 @@ export default function Dashboard() {
     let highlightedFeatures = new Set<number>()
     let highlightTimeout: any = null
     let bounds: any = null
-    let zoom = 1.5, panX = 0, panY = 0
+    const initialZoom = (() => { const w = window.innerWidth; return w <= 500 ? 0.65 : w <= 768 ? 1.0 : 1.5 })()
+    let zoom = initialZoom, panX = 0, panY = 0
     const MIN_ZOOM = 0.3, MAX_ZOOM = 12
     let isDragging = false, dragStartX = 0, dragStartY = 0, dragPanX = 0, dragPanY = 0
+    let pinchDist = 0, pinchZoom = 0
     let aircraft: any[] = [], acAge = 0
     const trails = new Map<string, any[]>()
     let hlPulse = 0
@@ -52,7 +54,7 @@ export default function Dashboard() {
       return { minX: minX - padX, maxX: maxX + padX, minY: minY - padY, maxY: maxY + padY }
     }
 
-    function resetView() { zoom = 1; panX = 0; panY = 0; draw() }
+    function resetView() { zoom = initialZoom; panX = 0; panY = 0; draw() }
 
     function toScreen(lon: number, lat: number): [number, number] {
       const W = canvas.parentElement!.clientWidth, H = canvas.parentElement!.clientHeight
@@ -97,6 +99,50 @@ export default function Dashboard() {
     window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab' })
     canvas.style.cursor = 'grab'
     canvas.addEventListener('dblclick', resetView)
+
+    // ─── TOUCH EVENTS (mobile pan + pinch zoom) ───
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault()
+      if (e.touches.length === 1) {
+        isDragging = true
+        dragStartX = e.touches[0].clientX
+        dragStartY = e.touches[0].clientY
+        dragPanX = panX; dragPanY = panY
+      } else if (e.touches.length === 2) {
+        isDragging = false
+        const dx = e.touches[0].clientX - e.touches[1].clientX
+        const dy = e.touches[0].clientY - e.touches[1].clientY
+        pinchDist = Math.sqrt(dx * dx + dy * dy)
+        pinchZoom = zoom
+      }
+      hideTooltip()
+    }, { passive: false })
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault()
+      if (e.touches.length === 1 && isDragging) {
+        panX = dragPanX + (e.touches[0].clientX - dragStartX)
+        panY = dragPanY + (e.touches[0].clientY - dragStartY)
+        draw()
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX
+        const dy = e.touches[0].clientY - e.touches[1].clientY
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (pinchDist > 0) {
+          const scale = dist / pinchDist
+          const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, pinchZoom * scale))
+          if (newZoom !== zoom) {
+            zoom = newZoom
+            draw()
+          }
+        }
+      }
+    }, { passive: false })
+
+    canvas.addEventListener('touchend', (e) => {
+      isDragging = false
+      if (e.touches.length === 0) pinchDist = 0
+    })
 
     // Click on aircraft → tooltip
     canvas.addEventListener('click', (e) => {
@@ -745,7 +791,7 @@ const css = `
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;display:flex;height:100vh;overflow:hidden}
 #map-panel{flex:1;position:relative;border-right:1px solid var(--border);min-width:0}
-canvas{display:block;width:100%;height:100%}
+canvas{display:block;width:100%;height:100%;touch-action:none}
 #map-header{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);padding:6px 20px;border:1px solid var(--border);font-size:13px;letter-spacing:2px;white-space:nowrap;pointer-events:none}
 #legend{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,0.85);padding:8px 14px;border:1px solid var(--border);font-size:11px;pointer-events:none}
 .legend-item{display:flex;align-items:center;gap:8px;margin:2px 0}
@@ -816,7 +862,7 @@ canvas{display:block;width:100%;height:100%}
 #ac-tooltip .tt-badge.red{background:#300;color:#f44;border:1px solid #600}
 /* ── MOBILE (≤768px) ── */
 @media (max-width:768px){
-  html,body{overflow-x:hidden;overflow-y:hidden}
+  html,body{overflow-x:hidden;overflow-y:hidden;overscroll-behavior:none;position:fixed;width:100%;height:100%}
   body{flex-direction:column}
   #map-panel{flex:none;height:42vh;width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}
   #map-header{font-size:9px;padding:3px 8px;top:4px;left:50%;white-space:nowrap}
