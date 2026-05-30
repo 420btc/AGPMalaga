@@ -326,7 +326,7 @@ export default function Dashboard() {
         const [x, y] = toScreen(a.lon, a.lat)
         if (x < -80 || y < -80 || x > canvas.width / devicePixelRatio + 80 || y > canvas.height / devicePixelRatio + 80) continue
         const alpha = Math.max(0.55, 1 - (now - acAge) / 120)
-        const sz = Math.max(8, Math.min(22, 12 * Math.min(zoom, 3)))
+        const sz = Math.max(8, Math.min(22, 12 * Math.min(zoom, 3))) * getScale()
         const hdg = a.heading || 0
         ctx.shadowBlur = sz * 0.5
 
