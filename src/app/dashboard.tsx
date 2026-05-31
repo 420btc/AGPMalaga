@@ -358,7 +358,7 @@ export default function Dashboard() {
       if (!bounds || !towerImg || !towerGrayCanvas || !towerGreenCanvas) return
       const [tx, ty] = toScreen(TOWER_LON, TOWER_LAT)
       if (tx < -200 || ty < -200 || tx > canvas.width / devicePixelRatio + 200 || ty > canvas.height / devicePixelRatio + 200) return
-      const sz = Math.max(35, Math.min(90, 55 * Math.min(zoom, 2.5)))
+      const sz = Math.max(35, Math.min(90, 55 * Math.min(zoom, 2.5))) * getScale()
       const active = towerActive && (Date.now() - towerActiveSince < 3000)
       const src = active ? towerGreenCanvas : towerGrayCanvas
       const iw = towerImg.width, ih = towerImg.height, scale = sz / ih
