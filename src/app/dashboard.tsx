@@ -46,6 +46,13 @@ export default function Dashboard() {
     let showFlights = false
     let _selectedAc: any = null
 
+    // ─── TOWER ───
+    const TOWER_LAT = 36.681709, TOWER_LON = -4.504364
+    let towerActive = false, towerActiveSince = 0
+    let towerImg: HTMLImageElement | null = null
+    let towerGreenCanvas: HTMLCanvasElement | null = null
+    let towerGrayCanvas: HTMLCanvasElement | null = null
+
     // ─── CANVAS HELPERS ───
     function resize() {
       canvas.width = canvas.parentElement!.clientWidth * window.devicePixelRatio
@@ -330,6 +337,34 @@ export default function Dashboard() {
       ctx.restore()
     }
 
+    // ─── TOWER IMAGE ───
+    function initTowerImage() {
+      towerImg = new Image()
+      towerImg.onload = () => {
+        const w = towerImg!.width, h = towerImg!.height
+        // Gray (inactive)
+        towerGrayCanvas = document.createElement('canvas'); towerGrayCanvas.width = w; towerGrayCanvas.height = h
+        const ictx = towerGrayCanvas.getContext('2d')!; ictx.drawImage(towerImg!, 0, 0)
+        ictx.globalCompositeOperation = 'source-atop'; ictx.fillStyle = 'rgba(100,100,100,0.7)'; ictx.fillRect(0, 0, w, h)
+        // Green (active)
+        towerGreenCanvas = document.createElement('canvas'); towerGreenCanvas.width = w; towerGreenCanvas.height = h
+        const actx = towerGreenCanvas.getContext('2d')!; actx.drawImage(towerImg!, 0, 0)
+        actx.globalCompositeOperation = 'source-atop'; actx.fillStyle = 'rgba(0,255,80,0.9)'; actx.fillRect(0, 0, w, h)
+        draw()
+      }
+      towerImg.src = '/torre.png'
+    }
+    function drawTower() {
+      if (!bounds || !towerImg || !towerGrayCanvas || !towerGreenCanvas) return
+      const [tx, ty] = toScreen(TOWER_LON, TOWER_LAT)
+      if (tx < -200 || ty < -200 || tx > canvas.width / devicePixelRatio + 200 || ty > canvas.height / devicePixelRatio + 200) return
+      const sz = Math.max(35, Math.min(90, 55 * Math.min(zoom, 2.5)))
+      const active = towerActive && (Date.now() - towerActiveSince < 3000)
+      const src = active ? towerGreenCanvas : towerGrayCanvas
+      const iw = towerImg.width, ih = towerImg.height, scale = sz / ih
+      ctx.drawImage(src, tx - iw * scale / 2, ty - ih * scale, iw * scale, ih * scale)
+    }
+
     function drawAircraft() {
       if (!aircraft.length) return
       const AGP_LAT = 36.675, AGP_LON = -4.499, RANGE_KM = 30
@@ -401,6 +436,7 @@ export default function Dashboard() {
       }
       for (const t of order) { for (const [idx, f] of byType[t]) drawFeature(f, idx) }
       drawLabels()
+      drawTower()
       drawTrails()
       drawAircraft()
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(W - 130, H - 32, 122, 24)
@@ -484,6 +520,8 @@ export default function Dashboard() {
           lastText = newText
           if (isReallyNew) {
             beep()
+            // Activate tower glow
+            towerActive = true; towerActiveSince = Date.now()
             // Auto-play new audio entries
             if (autoPlay && data.entries.length > 0) {
               for (const entry of data.entries) {
@@ -739,6 +777,7 @@ export default function Dashboard() {
     })
 
     loadAirport().then(() => {
+      initTowerImage()
       pollTranscriptions()
       pollAircraft()
       setInterval(pollTranscriptions, 3000)
@@ -772,6 +811,7 @@ export default function Dashboard() {
           <div className="legend-item"><div className="legend-swatch" style={{ color: '#00ff50', display: 'inline-block', fontSize: '14px', lineHeight: 1 }}>✈</div>Avión en tierra</div>
           <div className="legend-item"><div className="legend-swatch" style={{ color: '#fa0', display: 'inline-block', fontSize: '14px', lineHeight: 1 }}>✈</div>Avión en vuelo</div>
           <div className="legend-item"><div className="legend-swatch" style={{ color: '#48c', display: 'inline-block', fontSize: '14px', lineHeight: 1 }}>🚗</div>Vehículo tierra</div>
+          <div className="legend-item"><div className="legend-swatch" style={{ color: '#0f0', display: 'inline-block', fontSize: '14px', lineHeight: 1 }}>🗼</div>Torre Control</div>
         </div>
       </div>
       <div id="sidebar">
