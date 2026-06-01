@@ -789,6 +789,93 @@ export default function Dashboard() {
       pulseAnim()
     })
 
+    // ─── ACTIVITY CHART ───
+    let _actHours = 24, _actData: any = null
+    ;(window as any).openActivity = () => {
+      document.getElementById('activity-modal')!.classList.add('open')
+      if (!_actData) (window as any).switchActivity(24, document.querySelector('#activity-tabs button[data-h="24"]'))
+    }
+    ;(window as any).switchActivity = (h: number, btn: HTMLElement | null) => {
+      _actHours = h
+      document.querySelectorAll('#activity-tabs button').forEach((b: any) => b.classList.remove('active'))
+      if (btn) btn.classList.add('active')
+      const step = h === 6 ? 10 : h === 12 ? 10 : 5
+      fetch('/api/activity?hours=' + h + '&step=' + step).then(r => r.json()).then((d: any) => {
+        _actData = d
+        document.getElementById('act-total')!.textContent = d.total
+        document.getElementById('act-avg')!.textContent = d.avg
+        document.getElementById('act-peak')!.textContent = d.peak
+        drawLineChart(d)
+      })
+    }
+    function drawLineChart(data: any) {
+      const wrap = document.getElementById('chart-wrap')!, canvas = document.getElementById('chart-canvas') as HTMLCanvasElement
+      const W = wrap.clientWidth, H = wrap.clientHeight
+      canvas.width = W * devicePixelRatio; canvas.height = H * devicePixelRatio
+      const cctx = canvas.getContext('2d')!
+      cctx.setTransform(1, 0, 0, 1, 0, 0); cctx.scale(devicePixelRatio, devicePixelRatio)
+      cctx.clearRect(0, 0, W, H)
+      if (!data.buckets.length) return
+      const pad = { top: 20, right: 20, bottom: 5, left: 38 }
+      const pw = W - pad.left - pad.right, ph = H - pad.top - pad.bottom
+      const max = Math.max(1, data.peak), n = data.buckets.length
+      cctx.strokeStyle = '#1a1a1a'; cctx.lineWidth = 0.5
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + ph * (1 - i / 4)
+        cctx.beginPath(); cctx.moveTo(pad.left, y); cctx.lineTo(W - pad.right, y); cctx.stroke()
+        cctx.fillStyle = '#555'; cctx.font = '9px monospace'; cctx.textAlign = 'right'
+        cctx.fillText(String(Math.round(max * i / 4)), pad.left - 6, y + 3)
+      }
+      cctx.fillStyle = '#555'; cctx.font = '9px monospace'; cctx.textAlign = 'center'
+      const labelEvery = Math.max(1, Math.floor(n / 8))
+      for (let i = 0; i < n; i++) {
+        if (i % labelEvery === 0 || i === n - 1) {
+          cctx.fillText(data.buckets[i].hour.slice(11, 16), pad.left + pw * i / (n - 1), H - 2)
+        }
+      }
+      cctx.beginPath(); cctx.strokeStyle = '#0f0'; cctx.lineWidth = 2; cctx.lineJoin = 'round'
+      let first = true
+      for (let i = 0; i < n; i++) {
+        const x = pad.left + pw * i / (n - 1), y = pad.top + ph * (1 - data.buckets[i].count / max)
+        if (first) { cctx.moveTo(x, y); first = false } else cctx.lineTo(x, y)
+      }
+      cctx.stroke()
+      cctx.lineTo(pad.left + pw, pad.top + ph); cctx.lineTo(pad.left, pad.top + ph); cctx.closePath()
+      cctx.fillStyle = 'rgba(0,255,0,0.04)'; cctx.fill()
+      for (let i = 0; i < n; i++) {
+        const x = pad.left + pw * i / (n - 1), y = pad.top + ph * (1 - data.buckets[i].count / max)
+        const isPeak = data.buckets[i].count === data.peak && data.peak > 0
+        cctx.beginPath(); cctx.arc(x, y, isPeak ? 4 : 2.5, 0, Math.PI * 2)
+        cctx.fillStyle = isPeak ? '#0f0' : '#0a0a0a'; cctx.fill()
+        cctx.strokeStyle = isPeak ? '#0f0' : '#1a3a1a'; cctx.lineWidth = 1.5; cctx.stroke()
+      }
+      ;(canvas as any)._dots = data.buckets.map((b: any, i: number) => ({
+        x: pad.left + pw * i / (n - 1), y: pad.top + ph * (1 - b.count / max), hour: b.hour, count: b.count
+      }))
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('activity-modal')!.classList.remove('open') })
+    document.getElementById('activity-modal')!.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('activity-modal')) document.getElementById('activity-modal')!.classList.remove('open')
+    })
+    const chartCanvas = document.getElementById('chart-canvas') as HTMLCanvasElement
+    chartCanvas.addEventListener('mousemove', function (e) {
+      const tt = document.getElementById('chart-tooltip')!, dots = (this as any)._dots
+      if (!dots) { tt.style.display = 'none'; return }
+      const rect = this.getBoundingClientRect()
+      const mx = (e.clientX - rect.left) * devicePixelRatio, my = (e.clientY - rect.top) * devicePixelRatio
+      let best: any = null, bestDist = 15 * devicePixelRatio
+      for (const d of dots) {
+        const dist = Math.sqrt((mx - d.x) ** 2 + (my - d.y) ** 2)
+        if (dist < bestDist) { bestDist = dist; best = d }
+      }
+      if (best) {
+        tt.style.display = 'block'; tt.textContent = best.hour.slice(11, 16) + ' — ' + best.count + ' tx'
+        tt.style.left = (rect.left + best.x / devicePixelRatio - 30) + 'px'
+        tt.style.top = (rect.top + best.y / devicePixelRatio - 28) + 'px'
+      } else tt.style.display = 'none'
+    })
+    chartCanvas.addEventListener('mouseleave', () => { document.getElementById('chart-tooltip')!.style.display = 'none' })
+
     // Cleanup on unmount
     return () => {
       if (animFrame) cancelAnimationFrame(animFrame)
@@ -817,10 +904,13 @@ export default function Dashboard() {
       <div id="sidebar">
         <div id="sidebar-header">
           <span>TRANSCRIPCIONES | 118.150 MHz</span>
-          <span id="info-btn" title="Acerca de" style={{cursor:'pointer',fontSize:'15px',marginRight:'8px',opacity:0.6}} onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>ℹ️</span>
-          <label id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" /><span className="knob"></span> AUTO</label>
-          <span id="help-btn" title="Ayuda" style={{cursor:'pointer',fontSize:'12px',marginLeft:'-2px',opacity:0.5,color:'#aaa'}} onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>?</span>
-          <label id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" /><span className="knob"></span> ✈</label>
+          <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
+            <button className="header-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))() }}>📊 ACT</button>
+            <label className="header-btn toggle" id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" /><span className="knob"></span> AUTO</label>
+            <label className="header-btn toggle" id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" /><span className="knob"></span> ✈</label>
+            <button className="header-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>ℹ️ INFO</button>
+            <button className="header-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>❓ AYUDA</button>
+          </div>
           <span id="last-timer"></span>
         </div>
         <div id="help-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'10px 14px',borderRadius:'6px',fontSize:'10px',lineHeight:1.6,zIndex:200,maxWidth:'240px',color:'#aaa'}}>
@@ -831,6 +921,7 @@ export default function Dashboard() {
         <div id="info-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'14px 18px',borderRadius:'6px',fontSize:'11px',lineHeight:1.6,zIndex:200,maxWidth:'300px',color:'#aaa'}}>
           <div style={{fontSize:'13px',color:'#fff',marginBottom:'8px',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
           <div style={{marginBottom:'6px',color:'#888'}}>Creado con ❤️ para la comunidad</div>
+          <div style={{marginBottom:'6px',padding:'4px 8px',background:'rgba(255,136,0,0.08)',border:'1px solid rgba(255,136,0,0.2)',borderRadius:'3px',color:'#f84',fontSize:'10px'}}>🔇 Audio temporalmente no disponible — sin financiación para almacenamiento</div>
           <div style={{borderTop:'1px solid #333',margin:'8px 0',paddingTop:'8px'}}>
             <div>🎙 <b style={{color:'#ccc'}}>Audio real</b> — capturado con SDR desde Málaga</div>
             <div>🧠 <b style={{color:'#ccc'}}>Transcripción IA</b> — faster-whisper small (GPU RTX 3070)</div>
@@ -870,6 +961,27 @@ export default function Dashboard() {
           <span id="status-right"></span>
         </div>
       </div>
+      {/* ─── Activity Modal ─── */}
+      <div id="activity-modal">
+        <div id="activity-box">
+          <button id="activity-close" onClick={() => { document.getElementById('activity-modal')!.classList.remove('open') }}>✕</button>
+          <h2>📊 ACTIVIDAD ATC</h2>
+          <div className="sub">Transcripciones por hora — Torre Málaga 118.150 MHz</div>
+          <div id="activity-tabs">
+            <button data-h="6" onClick={(e) => { (window as any).switchActivity?.(6, e.currentTarget) }}>6 horas</button>
+            <button data-h="12" onClick={(e) => { (window as any).switchActivity?.(12, e.currentTarget) }}>12 horas</button>
+            <button data-h="24" className="active" onClick={(e) => { (window as any).switchActivity?.(24, e.currentTarget) }}>24 horas</button>
+          </div>
+          <div id="activity-stats">
+            <div className="stat"><div className="val" id="act-total">--</div><div className="lbl">TOTAL TX</div></div>
+            <div className="stat"><div className="val" id="act-avg">--</div><div className="lbl">MEDIA/HORA</div></div>
+            <div className="stat"><div className="val" id="act-peak">--</div><div className="lbl">PICO HORA</div></div>
+          </div>
+          <div id="chart-wrap"><canvas id="chart-canvas"></canvas><div id="chart-tooltip"></div></div>
+          <div id="chart-labels"></div>
+          <div style={{textAlign:'center',fontSize:'9px',color:'var(--dim)'}}>Click en barra = ver hora · ESC = cerrar</div>
+        </div>
+      </div>
     </>
   )
 }
@@ -907,6 +1019,35 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .tx-line .loc-tag.parking{border-color:var(--phl);color:var(--phl)}
 .tx-line .loc-tag.tower{border-color:var(--tohl);color:var(--tohl)}
 #status-bar{padding:8px 18px;border-top:1px solid var(--border);font-size:10px;color:var(--dim);display:flex;justify-content:space-between}
+/* ── UNIFIED HEADER BUTTONS ── */
+.header-btn{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 8px;font-family:'Courier New',monospace;transition:all 0.15s;white-space:nowrap}
+.header-btn:hover{color:var(--text);border-color:var(--border);background:rgba(255,255,255,0.03)}
+.header-btn.toggle{min-width:52px}
+.header-btn .knob{width:22px;height:11px;background:var(--border);border-radius:5.5px;position:relative;transition:background 0.2s}
+.header-btn .knob::after{content:'';position:absolute;top:1px;left:1px;width:9px;height:9px;background:var(--dim);border-radius:50%;transition:all 0.2s}
+.header-btn.on .knob{background:#1a3a1a}
+.header-btn.on .knob::after{left:12px;background:var(--acft)}
+#flights-toggle.on .knob{background:#1a2a3a}
+#flights-toggle.on .knob::after{background:#4af}
+/* ── ACTIVITY MODAL ── */
+#activity-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center}
+#activity-modal.open{display:flex}
+#activity-box{background:#0d0d0d;border:1px solid var(--border);padding:24px;max-width:700px;width:95%;max-height:85vh;overflow-y:auto;position:relative}
+#activity-box h2{font-size:16px;letter-spacing:2px;margin-bottom:4px;color:var(--accent)}
+#activity-box .sub{font-size:10px;color:var(--dim);margin-bottom:16px}
+#activity-tabs{display:flex;gap:8px;margin-bottom:16px}
+#activity-tabs button{background:#111;color:var(--dim);border:1px solid var(--border);padding:6px 16px;cursor:pointer;font-family:inherit;font-size:11px;transition:all 0.2s}
+#activity-tabs button.active,#activity-tabs button:hover{background:#1a2a1a;color:#0f0;border-color:#1a3a1a}
+#activity-stats{display:flex;gap:24px;margin-bottom:16px;font-size:11px}
+#activity-stats .stat{text-align:center}
+#activity-stats .stat .val{font-size:22px;font-weight:bold;color:#0f0}
+#activity-stats .stat .lbl{font-size:9px;color:var(--dim);margin-top:2px}
+#chart-wrap{position:relative;height:200px;border-bottom:1px solid var(--border);margin-bottom:4px;overflow:hidden}
+#chart-wrap canvas{width:100%;height:100%}
+#chart-tooltip{display:none;position:fixed;background:#000;border:1px solid #1a3a1a;padding:4px 8px;font-size:10px;color:#0f0;pointer-events:none;white-space:nowrap;z-index:2000}
+#chart-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--dim);margin-bottom:12px}
+#activity-close{position:absolute;top:12px;right:16px;background:transparent;border:none;color:var(--dim);font-size:18px;cursor:pointer;font-family:inherit}
+#activity-close:hover{color:#f44}
 .btn-play{display:inline-flex;align-items:center;cursor:pointer;color:var(--dim);font-size:9px;margin-left:6px;padding:0 4px;border:1px solid var(--border);border-radius:2px;background:transparent;font-family:'Courier New',monospace;transition:all 0.2s;line-height:1.6}
 .btn-play:hover{color:var(--text);border-color:var(--dim)}
 .btn-play.playing{color:#888;border-color:#555;background:rgba(255,255,255,0.03)}
@@ -956,13 +1097,13 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   #map-header{font-size:9px;padding:3px 8px;top:4px;left:50%;white-space:nowrap}
   #legend{display:none!important}
   #sidebar{width:100%;height:58vh;border-left:none;min-width:0;overflow:hidden;display:flex;flex-direction:column}
-  #sidebar-header{padding:6px 8px;font-size:9px;gap:3px;flex-wrap:wrap;flex-shrink:0}
+  #sidebar-header{padding:6px 8px;font-size:9px;gap:3px;flex-shrink:0;overflow-x:auto}
   #sidebar-header span{font-size:8px}
-  #info-btn{font-size:12px!important;margin-right:2px!important}
-  #auto-toggle,#flights-toggle{font-size:7px;gap:2px}
-  #auto-toggle .knob,#flights-toggle .knob{width:18px;height:9px}
-  #auto-toggle .knob::after,#flights-toggle .knob::after{width:7px;height:7px;top:0.5px;left:0.5px}
-  #auto-toggle.on .knob::after,#flights-toggle.on .knob::after{left:10px}
+  .header-btn{font-size:7px!important;gap:2px;padding:1px 4px!important}
+  .header-btn .knob{width:16px;height:8px}
+  .header-btn .knob::after{width:6px;height:6px;top:0.5px;left:0.5px}
+  .header-btn.on .knob::after,#flights-toggle.on .knob::after{left:9px}
+  #last-timer{font-size:8px}
   #feed{flex:1;overflow-y:auto;overflow-x:hidden;font-size:10px}
   .tx-line{padding:3px 8px;font-size:9px}
   .tx-line .ts{font-size:7px;margin-right:3px}
@@ -980,7 +1121,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   #info-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:98vw!important;font-size:9px}
   #info-tooltip>div:first-child{font-size:11px!important}
   #help-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:92vw!important;font-size:9px}
-  #help-btn{font-size:14px!important;margin:0 2px!important}
-  #last-timer{font-size:8px}
+  #activity-box{padding:16px;max-height:90vh}
+  #activity-box h2{font-size:13px}
+  #activity-stats{gap:12px}
+  #activity-stats .stat .val{font-size:16px}
+  #chart-wrap{height:140px}
 }
 `
