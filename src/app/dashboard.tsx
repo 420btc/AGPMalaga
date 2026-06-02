@@ -470,7 +470,13 @@ export default function Dashboard() {
           if (loc.type !== ftype) continue
           const mref = loc.ref.toUpperCase().trim()
           if (mref === ref || mref === label || mref === name) { fids.push(i); break }
-          if (ftype === 'taxiway' && ref && mref === ref) { fids.push(i); break }
+          // Runway partial match: "13" matches "13/31", "31" matches "13/31"
+          if (ftype === 'runway' && ref.includes('/')) {
+            const parts = ref.split('/')
+            if (parts.some((p: string) => p === mref)) { fids.push(i); break }
+          }
+          // Taxiway/parking: ref might contain the match
+          if ((ftype === 'taxiway' || ftype === 'parking') && ref && (ref === mref || ref.endsWith(mref) || mref.endsWith(ref))) { fids.push(i); break }
         }
       }
       return fids
