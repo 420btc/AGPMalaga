@@ -918,12 +918,12 @@ export default function Dashboard() {
       <div id="sidebar">
         <div id="sidebar-header">
           <span>TRANSCRIPCIONES | 118.150 MHz</span>
-          <div style={{display:'flex',gap:'6px',alignItems:'center'}}>
-            <button className="header-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))() }}>📊 ACT</button>
-            <label className="header-btn toggle" id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" /><span className="knob"></span> AUTO</label>
-            <label className="header-btn toggle" id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" /><span className="knob"></span> ✈</label>
-            <button className="header-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>ℹ️ INFO</button>
-            <button className="header-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>❓ AYUDA</button>
+          <div className="nav-bar">
+            <button className="nav-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))() }}>ACT</button>
+            <label className="nav-btn toggle" id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" />AUTO</label>
+            <label className="nav-btn toggle" id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" />VUELOS</label>
+            <button className="nav-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>INFO</button>
+            <button className="nav-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>AYUDA</button>
           </div>
           <span id="last-timer"></span>
         </div>
@@ -1032,17 +1032,22 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .tx-line .loc-tag.taxiway{border-color:var(--thl);color:var(--thl)}
 .tx-line .loc-tag.parking{border-color:var(--phl);color:var(--phl)}
 .tx-line .loc-tag.tower{border-color:var(--tohl);color:var(--tohl)}
-#status-bar{padding:8px 18px;border-top:1px solid var(--border);font-size:10px;color:var(--dim);display:flex;justify-content:space-between}
-/* ── UNIFIED HEADER BUTTONS ── */
-.header-btn{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;background:transparent;border:1px solid transparent;border-radius:3px;padding:2px 8px;font-family:'Courier New',monospace;transition:all 0.15s;white-space:nowrap}
-.header-btn:hover{color:var(--text);border-color:var(--border);background:rgba(255,255,255,0.03)}
-.header-btn.toggle{min-width:52px}
-.header-btn .knob{width:22px;height:11px;background:var(--border);border-radius:5.5px;position:relative;transition:background 0.2s}
-.header-btn .knob::after{content:'';position:absolute;top:1px;left:1px;width:9px;height:9px;background:var(--dim);border-radius:50%;transition:all 0.2s}
-.header-btn.on .knob{background:#1a3a1a}
-.header-btn.on .knob::after{left:12px;background:var(--acft)}
-#flights-toggle.on .knob{background:#1a2a3a}
-#flights-toggle.on .knob::after{background:#4af}
+#sidebar-header{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;letter-spacing:1px;background:linear-gradient(180deg,#111 0%,#0d0d0d 100%);display:flex;justify-content:space-between;align-items:center;gap:10px}
+#sidebar-header span{color:var(--dim);white-space:nowrap}
+.nav-bar{display:flex;gap:3px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.02)}
+.nav-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 10px;font-family:'Courier New',monospace;transition:all 0.2s;white-space:nowrap;letter-spacing:0.5px;position:relative}
+.nav-btn:hover{color:#ccc;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
+.nav-btn:active{transform:scale(0.96)}
+.nav-btn.toggle{padding:4px 10px;gap:5px;min-width:auto}
+.nav-btn.toggle input[type="checkbox"]{display:none}
+.nav-btn.toggle::before{content:'';width:20px;height:11px;background:rgba(255,255,255,0.08);border-radius:11px;transition:all 0.25s;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);flex-shrink:0}
+.nav-btn.toggle::after{content:'';position:absolute;width:9px;height:9px;background:#555;border-radius:50%;left:5px;transition:all 0.25s;box-shadow:0 1px 2px rgba(0,0,0,0.5);pointer-events:none}
+.nav-btn.toggle.on{color:#4f4;text-shadow:0 0 8px rgba(0,255,80,0.3)}
+.nav-btn.toggle.on::before{background:rgba(0,255,80,0.2);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 6px rgba(0,255,80,0.15)}
+.nav-btn.toggle.on::after{background:#0f0;left:16px;box-shadow:0 1px 3px rgba(0,255,0,0.4)}
+.nav-btn.toggle#flights-toggle.on{color:#4af;text-shadow:0 0 8px rgba(68,170,255,0.3)}
+.nav-btn.toggle#flights-toggle.on::before{background:rgba(68,170,255,0.2);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 6px rgba(68,170,255,0.15)}
+.nav-btn.toggle#flights-toggle.on::after{background:#4af;left:16px;box-shadow:0 1px 3px rgba(68,170,255,0.4)}
 /* ── ACTIVITY MODAL ── */
 #activity-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center}
 #activity-modal.open{display:flex}
@@ -1067,18 +1072,6 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .btn-play.playing{color:#888;border-color:#555;background:rgba(255,255,255,0.03)}
 .audio-loading{display:inline-block;font-size:11px;margin-left:6px;animation:spin 1s linear infinite;opacity:0.6}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-#auto-toggle{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;margin:0 10px}
-#auto-toggle input{display:none}
-#auto-toggle .knob{width:24px;height:12px;background:var(--border);border-radius:6px;position:relative;transition:background 0.2s}
-#auto-toggle .knob::after{content:'';position:absolute;top:1px;left:1px;width:10px;height:10px;background:var(--dim);border-radius:50%;transition:all 0.2s}
-#auto-toggle.on .knob{background:#1a3a1a}
-#auto-toggle.on .knob::after{left:13px;background:var(--acft)}
-#flights-toggle{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none}
-#flights-toggle input{display:none}
-#flights-toggle .knob{width:24px;height:12px;background:var(--border);border-radius:6px;position:relative;transition:background 0.2s}
-#flights-toggle .knob::after{content:'';position:absolute;top:1px;left:1px;width:10px;height:10px;background:var(--dim);border-radius:50%;transition:all 0.2s}
-#flights-toggle.on .knob{background:#1a2a3a}
-#flights-toggle.on .knob::after{left:13px;background:#4af}
 .flight-line{display:flex;align-items:center;padding:5px 12px;font-size:12px;border-left:3px solid transparent;gap:6px;line-height:1.5}
 .flight-line .fl-num{color:#4af;font-weight:bold;min-width:52px;font-size:12px}
 .flight-line .fl-route{color:var(--text);font-size:12px}
@@ -1113,12 +1106,15 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   #map-header{font-size:9px;padding:3px 8px;top:4px;left:50%;white-space:nowrap}
   #legend{display:none!important}
   #sidebar{width:100%;height:58vh;border-left:none;min-width:0;overflow:hidden;display:flex;flex-direction:column}
-  #sidebar-header{padding:6px 8px;font-size:9px;gap:3px;flex-shrink:0;overflow-x:auto}
+  #sidebar-header{padding:6px 8px;font-size:9px;gap:4px;flex-shrink:0;overflow-x:auto}
   #sidebar-header span{font-size:8px}
-  .header-btn{font-size:7px!important;gap:2px;padding:1px 4px!important}
-  .header-btn .knob{width:16px;height:8px}
-  .header-btn .knob::after{width:6px;height:6px;top:0.5px;left:0.5px}
-  .header-btn.on .knob::after,#flights-toggle.on .knob::after{left:9px}
+  .nav-bar{gap:2px;padding:2px;border-radius:6px}
+  .nav-btn{font-size:7px!important;gap:2px;padding:3px 6px!important;border-radius:4px;letter-spacing:0}
+  .nav-btn.toggle{padding:3px 6px!important;gap:4px}
+  .nav-btn.toggle::before{width:16px;height:8px;border-radius:8px}
+  .nav-btn.toggle::after{width:7px;height:7px;left:3px}
+  .nav-btn.toggle.on::after{left:12px}
+  .nav-btn.toggle#flights-toggle.on::after{left:12px}
   #last-timer{font-size:8px}
   #feed{flex:1;overflow-y:auto;overflow-x:hidden;font-size:10px}
   .tx-line{padding:3px 8px;font-size:9px}
