@@ -512,7 +512,15 @@ export default function Dashboard() {
             let html = ''
             if (entry.time) html += `<span class="ts">${entry.time}</span>`
             html += entry.text
-            if (entry.audio) html += ` <button class="btn-play" onclick="window.playAudio(this,'${entry.audio}')">▶</button>`
+            if (entry.audio) {
+              html += ` <button class="btn-play" onclick="window.playAudio(this,'${entry.audio}')">▶</button>`
+            } else if (entry.full_ts) {
+              // Show loading spinner for recent entries (<60s) waiting for audio
+              const entryAge = (Date.now() / 1000) - (new Date(entry.full_ts.replace(' ', 'T')).getTime() / 1000)
+              if (entryAge < 60 && entryAge > -10) {
+                html += ` <span class="audio-loading" title="Esperando audio...">⏳</span>`
+              }
+            }
             if (entry.locations && entry.locations.length > 0) {
               html += ' '
               for (const loc of entry.locations) html += `<span class="loc-tag ${loc.type}">${loc.type}:${loc.ref}</span>`
@@ -1057,6 +1065,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .btn-play{display:inline-flex;align-items:center;cursor:pointer;color:var(--dim);font-size:9px;margin-left:6px;padding:0 4px;border:1px solid var(--border);border-radius:2px;background:transparent;font-family:'Courier New',monospace;transition:all 0.2s;line-height:1.6}
 .btn-play:hover{color:var(--text);border-color:var(--dim)}
 .btn-play.playing{color:#888;border-color:#555;background:rgba(255,255,255,0.03)}
+.audio-loading{display:inline-block;font-size:11px;margin-left:6px;animation:spin 1s linear infinite;opacity:0.6}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 #auto-toggle{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;margin:0 10px}
 #auto-toggle input{display:none}
 #auto-toggle .knob{width:24px;height:12px;background:var(--border);border-radius:6px;position:relative;transition:background 0.2s}
