@@ -1,4 +1,10 @@
 // Proxy ADSBexchange — hides API key from client
+// Track usage in global (persists across warm lambdas)
+declare global { var __adsbx_calls: number; var __adsbx_start: number }
+
+if (!globalThis.__adsbx_calls) globalThis.__adsbx_calls = 0
+if (!globalThis.__adsbx_start) globalThis.__adsbx_start = Date.now()
+
 export async function GET() {
   const key = process.env.ADSBX_API_KEY
   const url = 'https://adsbexchange-com1.p.rapidapi.com/v2/lat/36.675/lon/-4.499/dist/16/'
@@ -17,6 +23,7 @@ export async function GET() {
       return Response.json({ states: [], source: 'error', error: `ADSBX ${resp.status}` })
     }
 
+    globalThis.__adsbx_calls++
     const data = await resp.json()
     const ac = (data.ac || []).map((a: any) => {
       const alt_raw = a.alt_baro
