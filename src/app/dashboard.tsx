@@ -497,8 +497,6 @@ export default function Dashboard() {
         const data = await r.json()
         const feed = document.getElementById('feed')!
         errorCount = 0
-        const statusLeft = document.getElementById('status-left')!
-        statusLeft.innerHTML = '<span style=\"color:#0f0\">● EN LÍNEA</span>'
 
         if (data.entries.length !== lastCount || data.updated !== lastUpdated || data.error) {
           lastCount = data.entries.length; lastUpdated = data.updated
@@ -561,11 +559,10 @@ export default function Dashboard() {
           }
         }
         updateTimer()
-        const now = new Date()
-        document.getElementById('status-right')!.textContent = now.toLocaleTimeString('es-ES') + ' | ' + data.entries.length + ' tx'
       } catch (e) {
         errorCount++
-        document.getElementById('status-left')!.innerHTML = '<span style="color:#f44">● ERROR (' + errorCount + ')</span>'
+        const fl = document.querySelector('.footer-label')
+        if (fl) fl.innerHTML = 'ERROR (' + errorCount + ')'
       }
     }
 
@@ -735,8 +732,7 @@ export default function Dashboard() {
     // Speed selector
     ;(window as any).setSpeed = function (secs: string) {
       fetch('/api/interval/' + secs).then(r => r.json()).then((d: any) => {
-        const el = document.getElementById('cnt-budget')
-        if (el) el.textContent = ' | ' + d.calls_per_hour + '/h ' + d.calls_per_day + '/d ' + d.days_at_rate + 'd ' + d.budget
+        // budget info updated server-side
       })
     }
 
@@ -765,13 +761,7 @@ export default function Dashboard() {
           cd.textContent = remaining + 's'
           cd.style.color = remaining < 10 ? '#f44' : remaining < 30 ? '#fa0' : '#0f0'
         }
-        // Budget info
-        const budgetEl = document.getElementById('cnt-budget')
-        if (budgetEl && !budgetEl.textContent) {
-          fetch('/api/interval/' + (c.poll_interval || 120)).then(r => r.json()).then((d: any) => {
-            if (budgetEl) budgetEl.textContent = d.calls_per_hour + '/h ' + d.calls_per_day + '/d'
-          })
-        }
+        // Counter updated
       })
     }
 
@@ -950,27 +940,25 @@ export default function Dashboard() {
         </div>
         <div id="flights-panel" style={{ display: 'none', flex: 1, overflowY: 'auto', padding: '8px 0', borderBottom: '1px solid var(--border)' }}></div>
         <div id="feed"><div className="tx-line" style={{ color: 'var(--dim)' }}>Cargando...</div></div>
-        <div id="counter-bar" style={{ padding: '6px 12px', borderTop: '1px solid var(--border)', fontSize: '9px', color: 'var(--dim)', background: '#0d0d0d', display: 'flex', gap: '18px', alignItems: 'center' }}>
-          <span>📡 ADSBX: <b id="cnt-adsbx" style={{ color: '#0f0' }}>0</b>/10k</span>
-          <span style={{ color: '#555' }}>|</span>
-          <span>⏳ Est: <b id="cnt-days" style={{ color: '#4af' }}>--</b> días</span>
-          <span style={{ color: '#555' }}>|</span>
-          <span>⚡ <select id="speed-selector" style={{ background: '#111', color: '#0f0', border: '1px solid var(--border)', fontFamily: 'inherit', fontSize: '9px', padding: '1px 4px', cursor: 'pointer' }} onChange={(e) => (window as any).setSpeed?.(e.target.value)}>
+        <div id="footer-bar" className="footer-bar">
+          <span className="footer-dot">●</span>
+          <span className="footer-label">EN LÍNEA</span>
+          <span className="footer-sep">|</span>
+          <span>📡 <b id="cnt-adsbx" style={{ color: '#0f0' }}>0</b><span style={{ color: 'var(--dim)' }}>/10k</span></span>
+          <span className="footer-sep">·</span>
+          <span>⏳ <b id="cnt-days" style={{ color: '#4af' }}>--</b><span style={{ color: 'var(--dim)' }}>d</span></span>
+          <span className="footer-sep">·</span>
+          <span>⚡ <select id="speed-selector" style={{ background: 'transparent', color: '#0f0', border: 'none', fontFamily: 'inherit', fontSize: '9px', padding: '0 2px', cursor: 'pointer', outline: 'none' }} onChange={(e) => (window as any).setSpeed?.(e.target.value)}>
             <option value="300">5 min</option>
             <option value="120">2 min</option>
             <option value="60">1 min</option>
             <option value="30">30 seg</option>
           </select></span>
-          <span id="cnt-budget" style={{ fontSize: '8px', color: 'var(--dim)' }}></span>
-          <div style={{ flex: 1, height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 8px', overflow: 'hidden' }}>
-            <div id="cnt-bar" style={{ height: '100%', width: '0%', background: '#0f0', borderRadius: '2px', transition: 'width 0.5s' }}></div>
+          <div className="footer-bar-fill">
+            <div id="cnt-bar" style={{ height: '100%', width: '0%', background: '#0f0', borderRadius: '2px', transition: 'width 0.3s' }}></div>
           </div>
-          <span style={{ fontSize: '9px' }}>⏱ <b id="cnt-countdown" style={{ color: '#fa0' }}>--</b></span>
-          <span id="cnt-pct" style={{ color: '#0f0', fontWeight: 'bold', minWidth: '35px' }}>0%</span>
-        </div>
-        <div id="status-bar">
-          <span id="status-left">● EN LÍNEA</span>
-          <span id="status-right"></span>
+          <span id="cnt-pct" style={{ color: '#0f0', fontWeight: 'bold', minWidth: '28px', textAlign: 'right', fontSize: '9px' }}>0%</span>
+          <span id="cnt-countdown" style={{ color: '#fa0', fontSize: '8px', minWidth: '22px' }}>--</span>
         </div>
       </div>
       {/* ─── Activity Modal ─── */}
@@ -1043,6 +1031,15 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .nav-btn.toggle#flights-toggle.on{color:#4af;text-shadow:0 0 8px rgba(68,170,255,0.3)}
 .nav-btn.toggle#flights-toggle.on::before{background:rgba(68,170,255,0.2);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 6px rgba(68,170,255,0.15)}
 .nav-btn.toggle#flights-toggle.on::after{background:#4af;left:16px;box-shadow:0 1px 3px rgba(68,170,255,0.4)}
+/* ── FOOTER BAR (matching nav-bar) ── */
+.footer-bar{display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,#0d0d0d 0%,#111 100%);box-shadow:0 -2px 8px rgba(0,0,0,0.4);font-size:9px;color:var(--dim);font-family:'Courier New',monospace;letter-spacing:0.3px;white-space:nowrap;flex-shrink:0}
+.footer-dot{color:#0f0;font-size:7px;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+.footer-label{color:#0f0;font-size:8px;font-weight:bold;letter-spacing:1px;text-transform:uppercase}
+.footer-sep{color:rgba(255,255,255,0.1);font-size:8px;user-select:none}
+.footer-bar-fill{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;min-width:20px}
+.footer-bar select{background:transparent!important;color:#0f0!important;border:none!important}
+.footer-bar select option{background:#111;color:#ccc}
 /* ── ACTIVITY MODAL ── */
 #activity-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center}
 #activity-modal.open{display:flex}
@@ -1109,15 +1106,16 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .nav-btn.toggle::after{width:7px;height:7px;left:3px}
   .nav-btn.toggle.on::after{left:12px}
   .nav-btn.toggle#flights-toggle.on::after{left:12px}
-  #last-timer{font-size:8px}
-  #feed{flex:1;overflow-y:auto;overflow-x:hidden;font-size:10px}
+  #feed{flex:1;overflow-y:auto;overflow-x:hidden;font-size:10px;padding-bottom:8px}
+  .footer-bar{gap:3px;padding:3px 6px;font-size:7px;letter-spacing:0;overflow-x:auto}
+  .footer-label{font-size:6px}
+  .footer-sep{font-size:6px}
+  .footer-bar-fill{min-width:10px;height:2px}
+  .footer-bar select{font-size:7px!important}
   .tx-line{padding:3px 8px;font-size:9px}
   .tx-line .ts{font-size:7px;margin-right:3px}
   .tx-line .loc-tag{font-size:6px;padding:0 2px}
   .btn-play{font-size:7px;padding:0 2px}
-  #counter-bar{padding:3px 6px;font-size:7px;gap:6px;flex-wrap:wrap;flex-shrink:0;overflow:hidden}
-  #counter-bar select{font-size:6px}
-  #status-bar{padding:3px 8px;font-size:7px;flex-shrink:0}
   #flights-panel{font-size:9px;flex-shrink:0;max-height:30vh}
   .flight-line{padding:2px 6px;font-size:9px}
   .flight-line .fl-num{font-size:9px;min-width:38px}
