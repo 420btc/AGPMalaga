@@ -772,11 +772,13 @@ export default function Dashboard() {
       const btn = document.getElementById('info-btn')
       if (tooltip && btn && tooltip.style.display === 'block' && !btn.contains(e.target as Node) && !tooltip.contains(e.target as Node)) {
         tooltip.style.display = 'none'
+        btn.classList.remove('active')
       }
       const helpTt = document.getElementById('help-tooltip')
       const helpBtn = document.getElementById('help-btn')
       if (helpTt && helpBtn && helpTt.style.display === 'block' && !helpBtn.contains(e.target as Node) && !helpTt.contains(e.target as Node)) {
         helpTt.style.display = 'none'
+        helpBtn.classList.remove('active')
       }
     })
 
@@ -857,9 +859,9 @@ export default function Dashboard() {
         x: pad.left + pw * i / (n - 1), y: pad.top + ph * (1 - b.count / max), hour: b.hour, count: b.count
       }))
     }
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('activity-modal')!.classList.remove('open') })
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { document.getElementById('activity-modal')!.classList.remove('open'); document.getElementById('activity-btn')?.classList.remove('active') } })
     document.getElementById('activity-modal')!.addEventListener('click', (e) => {
-      if (e.target === document.getElementById('activity-modal')) document.getElementById('activity-modal')!.classList.remove('open')
+      if (e.target === document.getElementById('activity-modal')) { document.getElementById('activity-modal')!.classList.remove('open'); document.getElementById('activity-btn')?.classList.remove('active') }
     })
     const chartCanvas = document.getElementById('chart-canvas') as HTMLCanvasElement
     chartCanvas.addEventListener('mousemove', function (e) {
@@ -908,17 +910,17 @@ export default function Dashboard() {
       <div id="sidebar">
         <div id="sidebar-header">
           <div className="nav-bar">
-            <button className="nav-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))() }}>ACT</button>
+            <button className="nav-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))(); document.getElementById('activity-btn')?.classList.add('active') }}>ACT</button>
             <label className="nav-btn toggle" id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" />AUTO</label>
             <label className="nav-btn toggle" id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" />VUELOS</label>
-            <button className="nav-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>INFO</button>
-            <button className="nav-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>AYUDA</button>
+            <button className="nav-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); const b = document.getElementById('info-btn'); if (t) { const opening = t.style.display !== 'block'; t.style.display = opening ? 'block' : 'none'; if (b) b.classList.toggle('active', opening) } }}>INFO</button>
+            <button className="nav-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); const b = document.getElementById('help-btn'); if (t) { const opening = t.style.display !== 'block'; t.style.display = opening ? 'block' : 'none'; if (b) b.classList.toggle('active', opening) } }}>AYUDA</button>
           </div>
         </div>
         <div id="help-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'10px 14px',borderRadius:'6px',fontSize:'10px',lineHeight:1.6,zIndex:200,maxWidth:'240px',color:'#aaa'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
             <div style={{fontSize:'12px',color:'#fff',fontWeight:'bold'}}>❓ Ayuda</div>
-            <span onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = 'none' }} style={{color:'#0f0',fontSize:'14px',cursor:'pointer',lineHeight:1,padding:'0 2px'}} title="Cerrar">✕</span>
+            <span onClick={() => { const t = document.getElementById('help-tooltip'); const b = document.getElementById('help-btn'); if (t) t.style.display = 'none'; if (b) b.classList.remove('active') }} style={{color:'#0f0',fontSize:'14px',cursor:'pointer',lineHeight:1,padding:'0 2px'}} title="Cerrar">✕</span>
           </div>
           <div style={{marginBottom:'4px'}}><b style={{color:'#0f0'}}>AUTO</b> — Reproduce automáticamente el audio de cada transcripción nueva que llega. Sin AUTO, tienes que pulsar ▶ en cada una.</div>
           <div style={{borderTop:'1px solid #333',margin:'6px 0',paddingTop:'6px'}}><b style={{color:'#4af'}}>✈ Vuelos</b> — Muestra el panel de llegadas y salidas del aeropuerto de Málaga (AGP). Se actualiza cada 30s.</div>
@@ -926,7 +928,7 @@ export default function Dashboard() {
         <div id="info-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'14px 18px',borderRadius:'6px',fontSize:'11px',lineHeight:1.6,zIndex:200,maxWidth:'300px',color:'#aaa'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
             <div style={{fontSize:'13px',color:'#fff',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
-            <span onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = 'none' }} style={{color:'#0f0',fontSize:'16px',cursor:'pointer',lineHeight:1,padding:'0 4px'}} title="Cerrar">✕</span>
+            <span onClick={() => { const t = document.getElementById('info-tooltip'); const b = document.getElementById('info-btn'); if (t) t.style.display = 'none'; if (b) b.classList.remove('active') }} style={{color:'#0f0',fontSize:'16px',cursor:'pointer',lineHeight:1,padding:'0 4px'}} title="Cerrar">✕</span>
           </div>
           <div style={{marginBottom:'6px',color:'#888'}}>Creado con ❤️ para la comunidad</div>
           <div style={{marginBottom:'6px',padding:'4px 8px',background:'rgba(0,255,0,0.06)',border:'1px solid rgba(0,255,0,0.15)',borderRadius:'3px',color:'#4f4',fontSize:'10px'}}>🔊 Audio en tiempo real — streaming desde SDR</div>
@@ -970,7 +972,7 @@ export default function Dashboard() {
       {/* ─── Activity Modal ─── */}
       <div id="activity-modal">
         <div id="activity-box">
-          <button id="activity-close" onClick={() => { document.getElementById('activity-modal')!.classList.remove('open') }}>✕</button>
+          <button id="activity-close" onClick={() => { document.getElementById('activity-modal')!.classList.remove('open'); document.getElementById('activity-btn')?.classList.remove('active') }}>✕</button>
           <h2>📊 ACTIVIDAD ATC</h2>
           <div className="sub">Transcripciones por hora — Torre Málaga 118.150 MHz</div>
           <div id="activity-tabs">
@@ -1027,6 +1029,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .nav-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 10px;font-family:'Courier New',monospace;transition:all 0.2s;white-space:nowrap;letter-spacing:0.5px;position:relative}
 .nav-btn:hover{color:#ccc;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
 .nav-btn:active{transform:scale(0.96)}
+.nav-btn.active{color:#4f4!important;text-shadow:0 0 8px rgba(0,255,80,0.3);background:rgba(0,255,80,0.06)!important;border-color:rgba(0,255,80,0.2)!important}
 .nav-btn.toggle{padding:4px 10px;gap:5px;min-width:auto}
 .nav-btn.toggle input[type="checkbox"]{display:none}
 .nav-btn.toggle::before{content:'';width:20px;height:11px;background:rgba(255,255,255,0.08);border-radius:11px;transition:all 0.25s;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);flex-shrink:0}
@@ -1107,6 +1110,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   #sidebar-header{padding:6px 8px;font-size:9px;gap:4px;flex-shrink:0;overflow-x:auto;justify-content:center;position:relative}
   .nav-bar{gap:2px;padding:2px;border-radius:6px}
   .nav-btn{font-size:7px!important;gap:2px;padding:3px 6px!important;border-radius:4px;letter-spacing:0}
+  .nav-btn.active{text-shadow:0 0 6px rgba(0,255,80,0.3)!important}
   .nav-btn.toggle{padding:3px 6px!important;gap:4px}
   .nav-btn.toggle::before{width:16px;height:8px;border-radius:8px}
   .nav-btn.toggle::after{width:7px;height:7px;left:3px}
