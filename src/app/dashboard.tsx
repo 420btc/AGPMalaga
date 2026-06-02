@@ -910,11 +910,11 @@ export default function Dashboard() {
       <div id="sidebar">
         <div id="sidebar-header">
           <div className="nav-bar">
-            <button className="nav-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))(); document.getElementById('activity-btn')?.classList.add('active') }}>ACT</button>
+            <label className="nav-btn toggle" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))(); document.getElementById('activity-btn')?.classList.add('active') }}>ACT</label>
             <label className="nav-btn toggle" id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" />AUTO</label>
             <label className="nav-btn toggle" id="flights-toggle" title="Ver vuelos"><input type="checkbox" id="flights-cb" />VUELOS</label>
-            <button className="nav-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); const b = document.getElementById('info-btn'); if (t) { const opening = t.style.display !== 'block'; t.style.display = opening ? 'block' : 'none'; if (b) b.classList.toggle('active', opening) } }}>INFO</button>
-            <button className="nav-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); const b = document.getElementById('help-btn'); if (t) { const opening = t.style.display !== 'block'; t.style.display = opening ? 'block' : 'none'; if (b) b.classList.toggle('active', opening) } }}>AYUDA</button>
+            <label className="nav-btn toggle" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); const b = document.getElementById('info-btn'); if (t) { const opening = t.style.display !== 'block'; t.style.display = opening ? 'block' : 'none'; if (b) b.classList.toggle('active', opening) } }}>INFO</label>
+            <label className="nav-btn toggle" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); const b = document.getElementById('help-btn'); if (t) { const opening = t.style.display !== 'block'; t.style.display = opening ? 'block' : 'none'; if (b) b.classList.toggle('active', opening) } }}>AYUDA</label>
           </div>
         </div>
         <div id="help-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'10px 14px',borderRadius:'6px',fontSize:'10px',lineHeight:1.6,zIndex:200,maxWidth:'240px',color:'#aaa'}}>
@@ -1029,17 +1029,19 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .nav-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 10px;font-family:'Courier New',monospace;transition:all 0.2s;white-space:nowrap;letter-spacing:0.5px;position:relative}
 .nav-btn:hover{color:#ccc;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
 .nav-btn:active{transform:scale(0.96)}
-.nav-btn.active{color:#4f4!important;text-shadow:0 0 8px rgba(0,255,80,0.3);background:rgba(0,255,80,0.06)!important;border-color:rgba(0,255,80,0.2)!important}
-.nav-btn.toggle{padding:4px 10px;gap:5px;min-width:auto}
+.nav-btn.toggle{padding:3px 8px;gap:5px;min-width:auto}
 .nav-btn.toggle input[type="checkbox"]{display:none}
-.nav-btn.toggle::before{content:'';width:20px;height:11px;background:rgba(255,255,255,0.08);border-radius:11px;transition:all 0.25s;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);flex-shrink:0}
-.nav-btn.toggle::after{content:'';position:absolute;width:9px;height:9px;background:#555;border-radius:50%;left:5px;transition:all 0.25s;box-shadow:0 1px 2px rgba(0,0,0,0.5);pointer-events:none}
+.nav-btn.toggle::before{content:'';width:18px;height:10px;background:rgba(255,255,255,0.08);border-radius:10px;transition:all 0.25s;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);flex-shrink:0}
+.nav-btn.toggle::after{content:'';position:absolute;width:8px;height:8px;background:#555;border-radius:50%;left:4px;transition:all 0.25s;box-shadow:0 1px 2px rgba(0,0,0,0.5);pointer-events:none}
 .nav-btn.toggle.on{color:#4f4;text-shadow:0 0 8px rgba(0,255,80,0.3)}
 .nav-btn.toggle.on::before{background:rgba(0,255,80,0.2);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 6px rgba(0,255,80,0.15)}
-.nav-btn.toggle.on::after{background:#0f0;left:16px;box-shadow:0 1px 3px rgba(0,255,0,0.4)}
+.nav-btn.toggle.on::after{background:#0f0;left:13px;box-shadow:0 1px 3px rgba(0,255,0,0.4)}
+.nav-btn.toggle.active{color:#4f4!important;text-shadow:0 0 8px rgba(0,255,80,0.3)}
+.nav-btn.toggle.active::before{background:rgba(0,255,80,0.2)!important;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 6px rgba(0,255,80,0.15)!important}
+.nav-btn.toggle.active::after{background:#0f0!important;left:13px!important;box-shadow:0 1px 3px rgba(0,255,0,0.4)!important}
 .nav-btn.toggle#flights-toggle.on{color:#4af;text-shadow:0 0 8px rgba(68,170,255,0.3)}
 .nav-btn.toggle#flights-toggle.on::before{background:rgba(68,170,255,0.2);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 6px rgba(68,170,255,0.15)}
-.nav-btn.toggle#flights-toggle.on::after{background:#4af;left:16px;box-shadow:0 1px 3px rgba(68,170,255,0.4)}
+.nav-btn.toggle#flights-toggle.on::after{background:#4af;left:13px;box-shadow:0 1px 3px rgba(68,170,255,0.4)}
 /* ── FOOTER BAR (matching nav-bar) ── */
 .footer-bar{display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,#0d0d0d 0%,#111 100%);box-shadow:0 -2px 8px rgba(0,0,0,0.4);font-size:9px;color:var(--dim);font-family:'Courier New',monospace;letter-spacing:0.3px;white-space:nowrap;flex-shrink:0}
 .footer-dot{color:#0f0;font-size:7px;animation:pulse-dot 2s infinite}
@@ -1109,13 +1111,13 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   #sidebar{width:100%;height:58vh;border-left:none;min-width:0;overflow:hidden;display:flex;flex-direction:column}
   #sidebar-header{padding:6px 8px;font-size:9px;gap:4px;flex-shrink:0;overflow-x:auto;justify-content:center;position:relative}
   .nav-bar{gap:2px;padding:2px;border-radius:6px}
-  .nav-btn{font-size:7px!important;gap:2px;padding:3px 6px!important;border-radius:4px;letter-spacing:0}
-  .nav-btn.active{text-shadow:0 0 6px rgba(0,255,80,0.3)!important}
-  .nav-btn.toggle{padding:3px 6px!important;gap:4px}
-  .nav-btn.toggle::before{width:16px;height:8px;border-radius:8px}
-  .nav-btn.toggle::after{width:7px;height:7px;left:3px}
-  .nav-btn.toggle.on::after{left:12px}
-  .nav-btn.toggle#flights-toggle.on::after{left:12px}
+  .nav-btn{font-size:7px!important;gap:2px;padding:3px 5px!important;border-radius:4px;letter-spacing:0;position:relative}
+  .nav-btn.toggle{padding:3px 5px!important;gap:3px}
+  .nav-btn.toggle::before{width:14px;height:7px;border-radius:7px}
+  .nav-btn.toggle::after{width:6px;height:6px;left:2px}
+  .nav-btn.toggle.on::after{left:9px}
+  .nav-btn.toggle.active::after{left:9px!important}
+  .nav-btn.toggle#flights-toggle.on::after{left:9px}
   #feed{flex:1;overflow-y:auto;overflow-x:hidden;font-size:10px;padding-bottom:8px}
   .footer-bar{gap:3px;padding:3px 6px;font-size:7px;letter-spacing:0;overflow-x:auto}
   .footer-label{font-size:6px}
