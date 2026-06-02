@@ -916,12 +916,18 @@ export default function Dashboard() {
           </div>
         </div>
         <div id="help-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'10px 14px',borderRadius:'6px',fontSize:'10px',lineHeight:1.6,zIndex:200,maxWidth:'240px',color:'#aaa'}}>
-          <div style={{fontSize:'12px',color:'#fff',marginBottom:'6px',fontWeight:'bold'}}>❓ Ayuda</div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
+            <div style={{fontSize:'12px',color:'#fff',fontWeight:'bold'}}>❓ Ayuda</div>
+            <span onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = 'none' }} style={{color:'#0f0',fontSize:'14px',cursor:'pointer',lineHeight:1,padding:'0 2px'}} title="Cerrar">✕</span>
+          </div>
           <div style={{marginBottom:'4px'}}><b style={{color:'#0f0'}}>AUTO</b> — Reproduce automáticamente el audio de cada transcripción nueva que llega. Sin AUTO, tienes que pulsar ▶ en cada una.</div>
           <div style={{borderTop:'1px solid #333',margin:'6px 0',paddingTop:'6px'}}><b style={{color:'#4af'}}>✈ Vuelos</b> — Muestra el panel de llegadas y salidas del aeropuerto de Málaga (AGP). Se actualiza cada 30s.</div>
         </div>
         <div id="info-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'14px 18px',borderRadius:'6px',fontSize:'11px',lineHeight:1.6,zIndex:200,maxWidth:'300px',color:'#aaa'}}>
-          <div style={{fontSize:'13px',color:'#fff',marginBottom:'8px',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
+            <div style={{fontSize:'13px',color:'#fff',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
+            <span onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = 'none' }} style={{color:'#0f0',fontSize:'16px',cursor:'pointer',lineHeight:1,padding:'0 4px'}} title="Cerrar">✕</span>
+          </div>
           <div style={{marginBottom:'6px',color:'#888'}}>Creado con ❤️ para la comunidad</div>
           <div style={{marginBottom:'6px',padding:'4px 8px',background:'rgba(0,255,0,0.06)',border:'1px solid rgba(0,255,0,0.15)',borderRadius:'3px',color:'#4f4',fontSize:'10px'}}>🔊 Audio en tiempo real — streaming desde SDR</div>
           <div style={{borderTop:'1px solid #333',margin:'8px 0',paddingTop:'8px'}}>
@@ -1124,6 +1130,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .flight-line .fl-meta{font-size:8px;min-width:60px}
   #info-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:98vw!important;font-size:9px}
   #info-tooltip>div:first-child{font-size:11px!important}
+  #info-tooltip span[title="Cerrar"],#help-tooltip span[title="Cerrar"]{font-size:18px!important;padding:4px 8px!important}
   #help-tooltip{top:auto!important;bottom:40px;right:2px;left:2px;max-width:92vw!important;font-size:9px}
   #activity-box{padding:16px;max-height:90vh}
   #activity-box h2{font-size:13px}
