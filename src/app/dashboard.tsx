@@ -924,7 +924,6 @@ export default function Dashboard() {
             <button className="nav-btn" id="info-btn" title="Acerca de" onClick={() => { const t = document.getElementById('info-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>INFO</button>
             <button className="nav-btn" id="help-btn" title="Ayuda" onClick={() => { const t = document.getElementById('help-tooltip'); if (t) t.style.display = t.style.display === 'block' ? 'none' : 'block' }}>AYUDA</button>
           </div>
-          <span id="last-timer"></span>
         </div>
         <div id="help-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'10px 14px',borderRadius:'6px',fontSize:'10px',lineHeight:1.6,zIndex:200,maxWidth:'240px',color:'#aaa'}}>
           <div style={{fontSize:'12px',color:'#fff',marginBottom:'6px',fontWeight:'bold'}}>❓ Ayuda</div>
