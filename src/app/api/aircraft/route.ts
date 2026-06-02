@@ -1,13 +1,21 @@
 // Proxy ADSBexchange — hides API key from client
-// Track usage in global (persists across warm lambdas)
-declare global { var __adsbx_calls: number; var __adsbx_start: number }
+// Manual cache: hit ADSBX at most every 30s, serve cached data in between
+declare global { var __adsbx_calls: number; var __adsbx_cache: any; var __adsbx_cache_time: number }
 
 if (!globalThis.__adsbx_calls) globalThis.__adsbx_calls = 0
-if (!globalThis.__adsbx_start) globalThis.__adsbx_start = Date.now()
+
+const CACHE_TTL = 30 // seconds between real ADSBX calls
 
 export async function GET() {
+  const now = Date.now() / 1000
   const key = process.env.ADSBX_API_KEY
-  const url = 'https://adsbexchange-com1.p.rapidapi.com/v2/lat/36.675/lon/-4.499/dist/16/'
+
+  // Return cached data if fresh
+  if (globalThis.__adsbx_cache && globalThis.__adsbx_cache_time && (now - globalThis.__adsbx_cache_time) < CACHE_TTL) {
+    return Response.json({ ...globalThis.__adsbx_cache, time: now, cached: true })
+  }
+
+  const url = 'https://adsbexchange-com1.p.rapidapi.com/v2/lat/36.675/lon/-4.499/dist/10/'
 
   try {
     const resp = await fetch(url, {
@@ -16,10 +24,13 @@ export async function GET() {
         'X-RapidAPI-Host': 'adsbexchange-com1.p.rapidapi.com',
         'User-Agent': 'AGP-Web/1.0',
       },
-      next: { revalidate: 30 }, // cache 30s
     })
 
     if (!resp.ok) {
+      // Serve stale cache on error if available
+      if (globalThis.__adsbx_cache) {
+        return Response.json({ ...globalThis.__adsbx_cache, time: now, cached: true, stale: true })
+      }
       return Response.json({ states: [], source: 'error', error: `ADSBX ${resp.status}` })
     }
 
@@ -62,14 +73,23 @@ export async function GET() {
       }
     })
 
-    return Response.json({
-      time: Date.now() / 1000,
+    const result = {
+      time: now,
       states: ac,
       source: 'adsbx',
-    })
+      cached: false,
+    }
+
+    globalThis.__adsbx_cache = result
+    globalThis.__adsbx_cache_time = now
+
+    return Response.json(result)
   } catch (e: any) {
+    if (globalThis.__adsbx_cache) {
+      return Response.json({ ...globalThis.__adsbx_cache, time: now, cached: true, stale: true })
+    }
     return Response.json({
-      time: Date.now() / 1000,
+      time: now,
       states: [],
       source: 'error',
       error: e.message,

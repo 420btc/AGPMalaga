@@ -787,7 +787,7 @@ export default function Dashboard() {
       pollTranscriptions()
       pollAircraft()
       setInterval(pollTranscriptions, 3000)
-      setInterval(pollAircraft, 5000)
+      setInterval(pollAircraft, 2000)
       setInterval(updateTimer, 1000)
       setInterval(pollFlights, 30000)
       setInterval(pollCounters, 30000)
