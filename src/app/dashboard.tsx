@@ -935,7 +935,7 @@ export default function Dashboard() {
         <div id="info-tooltip" style={{display:'none',position:'absolute',top:'48px',right:'12px',background:'rgba(0,0,0,0.95)',border:'1px solid var(--border)',padding:'14px 18px',borderRadius:'6px',fontSize:'11px',lineHeight:1.6,zIndex:200,maxWidth:'300px',color:'#aaa'}}>
           <div style={{fontSize:'13px',color:'#fff',marginBottom:'8px',fontWeight:'bold'}}>📻 ATC Torre Málaga 118.150 MHz</div>
           <div style={{marginBottom:'6px',color:'#888'}}>Creado con ❤️ para la comunidad</div>
-          <div style={{marginBottom:'6px',padding:'4px 8px',background:'rgba(255,136,0,0.08)',border:'1px solid rgba(255,136,0,0.2)',borderRadius:'3px',color:'#f84',fontSize:'10px'}}>🔇 Audio temporalmente no disponible — sin financiación para almacenamiento</div>
+          <div style={{marginBottom:'6px',padding:'4px 8px',background:'rgba(0,255,0,0.06)',border:'1px solid rgba(0,255,0,0.15)',borderRadius:'3px',color:'#4f4',fontSize:'10px'}}>🔊 Audio en tiempo real — streaming desde SDR</div>
           <div style={{borderTop:'1px solid #333',margin:'8px 0',paddingTop:'8px'}}>
             <div>🎙 <b style={{color:'#ccc'}}>Audio real</b> — capturado con SDR desde Málaga</div>
             <div>🧠 <b style={{color:'#ccc'}}>Transcripción IA</b> — faster-whisper small (GPU RTX 3070)</div>
