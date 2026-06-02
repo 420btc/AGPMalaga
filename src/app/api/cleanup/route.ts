@@ -1,5 +1,4 @@
 import { cleanupOldEntries } from '@/lib/db'
-import { del } from '@vercel/blob'
 
 // GET /api/cleanup — called via Vercel Cron every 24h
 export async function GET(request: Request) {
