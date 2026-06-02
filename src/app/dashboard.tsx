@@ -917,7 +917,6 @@ export default function Dashboard() {
       </div>
       <div id="sidebar">
         <div id="sidebar-header">
-          <span>TRANSCRIPCIONES | 118.150 MHz</span>
           <div className="nav-bar">
             <button className="nav-btn" id="activity-btn" title="Gráfica de actividad" onClick={() => { ((window as any).openActivity || (() => {}))() }}>ACT</button>
             <label className="nav-btn toggle" id="auto-toggle" title="Auto-play audio"><input type="checkbox" id="autoplay-cb" />AUTO</label>
@@ -1016,9 +1015,6 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .legend-swatch.ac{background:var(--acft);width:8px;height:8px;border-radius:50%}
 .legend-swatch.sld{width:12px;height:12px;background:#fff}
 #sidebar{width:420px;display:flex;flex-direction:column;background:var(--panel);border-left:1px solid var(--border)}
-#sidebar-header{padding:12px 18px;border-bottom:1px solid var(--border);font-size:13px;letter-spacing:1px;background:#0d0d0d;display:flex;justify-content:space-between}
-#sidebar-header span{color:var(--dim)}
-#last-timer{color:var(--acft);font-size:11px}
 #feed{flex:1;overflow-y:auto;padding:8px 0}
 #feed::-webkit-scrollbar{width:4px}
 #feed::-webkit-scrollbar-track{background:var(--panel)}
@@ -1032,8 +1028,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .tx-line .loc-tag.taxiway{border-color:var(--thl);color:var(--thl)}
 .tx-line .loc-tag.parking{border-color:var(--phl);color:var(--phl)}
 .tx-line .loc-tag.tower{border-color:var(--tohl);color:var(--tohl)}
-#sidebar-header{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;letter-spacing:1px;background:linear-gradient(180deg,#111 0%,#0d0d0d 100%);display:flex;justify-content:space-between;align-items:center;gap:10px}
-#sidebar-header span{color:var(--dim);white-space:nowrap}
+#sidebar-header{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;letter-spacing:1px;background:linear-gradient(180deg,#111 0%,#0d0d0d 100%);display:flex;justify-content:center;align-items:center;gap:10px;position:relative}
+#last-timer{color:var(--dim);white-space:nowrap;font-size:9px;position:absolute;right:14px}
 .nav-bar{display:flex;gap:3px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.02)}
 .nav-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:10px;color:var(--dim);cursor:pointer;user-select:none;background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 10px;font-family:'Courier New',monospace;transition:all 0.2s;white-space:nowrap;letter-spacing:0.5px;position:relative}
 .nav-btn:hover{color:#ccc;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
@@ -1106,8 +1102,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   #map-header{font-size:9px;padding:3px 8px;top:4px;left:50%;white-space:nowrap}
   #legend{display:none!important}
   #sidebar{width:100%;height:58vh;border-left:none;min-width:0;overflow:hidden;display:flex;flex-direction:column}
-  #sidebar-header{padding:6px 8px;font-size:9px;gap:4px;flex-shrink:0;overflow-x:auto}
-  #sidebar-header span{font-size:8px}
+  #sidebar-header{padding:6px 8px;font-size:9px;gap:4px;flex-shrink:0;overflow-x:auto;justify-content:center;position:relative}
   .nav-bar{gap:2px;padding:2px;border-radius:6px}
   .nav-btn{font-size:7px!important;gap:2px;padding:3px 6px!important;border-radius:4px;letter-spacing:0}
   .nav-btn.toggle{padding:3px 6px!important;gap:4px}
