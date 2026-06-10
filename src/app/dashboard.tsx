@@ -607,7 +607,9 @@ export default function Dashboard() {
       if (currentAudio) { currentAudio.pause() }
       document.querySelectorAll('.btn-play.playing').forEach((b: any) => { b.classList.remove('playing'); b.textContent = '▶' })
       if (currentAudio && currentAudio.src.endsWith(url.split('/').pop()!)) { currentAudio = null; return }
-      const a = new Audio(url)
+      // Route HTTP URLs through proxy to avoid mixed content (HTTPS page blocking HTTP audio)
+      const finalUrl = url.startsWith('http://') ? `/api/audio-stream?url=${encodeURIComponent(url)}` : url
+      const a = new Audio(finalUrl)
       a.onended = () => { if (btn) { btn.classList.remove('playing'); btn.textContent = '▶' }; currentAudio = null }
       a.onerror = () => { if (btn) btn.textContent = '·'; currentAudio = null }
       a.play()

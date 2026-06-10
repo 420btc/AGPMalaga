@@ -22,9 +22,9 @@ export async function POST(request: Request) {
     let inserted = 0
     for (const entry of entries) {
       if (!entry.text || entry.text.length < 2) continue
-      // Build audio URL from filename if present
+      // Build audio URL from filename — route through audio-stream proxy to avoid mixed content (HTTPS page loading HTTP audio)
       const audioUrl = entry.audio_file
-        ? `${AUDIO_BASE}/${entry.audio_file}`
+        ? `/api/audio-stream?url=${encodeURIComponent(`${AUDIO_BASE}/${entry.audio_file}`)}`
         : null
       await insertTranscription(
         entry.time || new Date().toISOString(),
